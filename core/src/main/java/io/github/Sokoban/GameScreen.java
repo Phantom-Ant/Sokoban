@@ -6,38 +6,49 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
-public class Main implements Screen {
+public class GameScreen implements Screen {
     private Game game;
     private Stage stage;
-
-
+    private FitViewport gameViewport;
+    private ScreenViewport uiViewport;
     private InputMultiplexer inputMultiplexer;
-    //private SpriteBatch batch;
-    private Texture image;
+
+    private SpriteBatch batch;
+    private Texture background;
     private Table table;
     private TextButton btn;
-    private Label testLabel;
     private float timer;
 
-    public Main(Game aGame) {
-        game = aGame;
-        stage = new Stage(new ScreenViewport());
+    private Player player;
 
-        //
+    public GameScreen(Game aGame) {
+        game = aGame;
+
+        batch = new SpriteBatch();
+        background = new Texture("img/scatola.jpg");
+        player = new Player(new Texture("img/ominoDavanti.jpg"), 4, 4);
+
+        uiViewport = new ScreenViewport(); //viewport for ui elements (buttons)
+        gameViewport = new FitViewport(Sokoban.width, Sokoban.height); //viewport for rendering the game
+
+        stage = new Stage(uiViewport, batch);
+
+
         TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
         style.font = Sokoban.font;
         //
@@ -45,14 +56,32 @@ public class Main implements Screen {
         //
         btn.getLabel().setAlignment(Align.center);
 
+
+        table = new Table();
+        table.setFillParent(true);
+
+
+        btn.addListener(new InputListener() {
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                return true;
+            }
+
+            @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                btn.setText("Click");
+            }
+        });
+
+
+        //table.add(btn).center(); DEBUG BUTTON
+
+        stage.addActor(table);
+
         inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(stage);
 
-        image = new Texture("libgdx.png");
-        Image img = new Image(image);
-
-        img.addAction(Actions.moveBy(1,1));
-
+        //temporarily arrangement for movement listener (i recommend to collapse this mess)
         inputMultiplexer.addProcessor(new GestureDetector(new GestureDetector.GestureListener() {
             @Override
             public boolean touchDown(float x, float y, int pointer, int button) {
@@ -79,19 +108,17 @@ public class Main implements Screen {
                     }else{
                         direction = velocityY>0? "Down" : "Up";
                     }
-                    //Gdx.app.log("Fling", direction);
                     btn.setText(direction);
 
                     if(direction.equals("Right")){
-                        img.addAction(Actions.moveBy(100, 0));
+                        player.moveBy(1,0);
                     }else if(direction.equals("Left")){
-                        img.addAction(Actions.moveBy(-100,0));
+                        player.moveBy(-1,0);
                     }else if(direction.equals("Down")){
-                        img.addAction(Actions.moveBy(0, -100));
+                        player.moveBy(0,-1);
                     }else { //Up
-                        img.addAction(Actions.moveBy(0, 100));
+                        player.moveBy(0,1);
                     }
-
                 }
 
                 return true;
@@ -121,25 +148,7 @@ public class Main implements Screen {
             public void pinchStop() {}
         }));
 
-        table = new Table();
-        table.setFillParent(true);
 
-        btn.addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                return true;
-            }
-
-            @Override
-            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                btn.setText("Click");
-            }
-        });
-
-        table.add(btn).center();
-
-        //table.add(img).center();
-        stage.addActor(table);
     }
 
     @Override
@@ -161,8 +170,10 @@ public class Main implements Screen {
 
     @Override
     public void resize(int width, int height) {
-
+        gameViewport.update(width, height, true);
+        uiViewport.update(width, height, true);
     }
+
 
     @Override
     public void pause() {
@@ -189,18 +200,28 @@ public class Main implements Screen {
     }
     private void draw(){
         ScreenUtils.clear(Color.BLACK);
-        //batch.begin();
-        //batch.draw(image, 140, 210);
+
+        gameViewport.apply();
+        batch.setProjectionMatrix(gameViewport.getCamera().combined);
+
+        batch.begin();
+        batch.draw(background, 0, 0, 1, 1);
+        batch.draw(background, 0, Sokoban.height-1, 1, 1);
+        batch.draw(background, Sokoban.width-1, 0, 1, 1);
+
+        player.draw(batch);
+
+        batch.end();
+
+        uiViewport.apply();
         stage.act();
         stage.draw();
-
-        //batch.end();
     }
 
     @Override
     public void dispose() {
-        //batch.dispose();
-        image.dispose();
+        batch.dispose();
+        background.dispose();
         stage.dispose();
     }
 }

@@ -4,7 +4,7 @@ import android.os.Bundle;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
-import io.github.Sokoban.Main;
+
 import io.github.Sokoban.Sokoban;
 
 /** Launches the Android application. */
