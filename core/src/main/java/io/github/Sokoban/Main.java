@@ -1,13 +1,12 @@
 package io.github.Sokoban;
 
-import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.input.GestureDetector;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -20,34 +19,33 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
-import java.io.File;
-
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
-public class Main extends ApplicationAdapter {
+public class Main implements Screen {
+    private Game game;
+    private Stage stage;
+
+
+    private InputMultiplexer inputMultiplexer;
     //private SpriteBatch batch;
     private Texture image;
-    private Stage stage;
     private Table table;
     private TextButton btn;
     private Label testLabel;
     private float timer;
 
-    @Override
-    public void create() {
+    public Main(Game aGame) {
+        game = aGame;
         stage = new Stage(new ScreenViewport());
 
-        BitmapFont font = new BitmapFont(); // default font
-        font.getData().setScale(10.0f);
         //
         TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
-        style.font = font;
+        style.font = Sokoban.font;
         //
         btn = new TextButton("Click?", style);
         //
-        testLabel = btn.getLabel();
-        testLabel.setAlignment(Align.center);
+        btn.getLabel().setAlignment(Align.center);
 
-        InputMultiplexer inputMultiplexer = new InputMultiplexer();
+        inputMultiplexer = new InputMultiplexer();
         inputMultiplexer.addProcessor(stage);
 
         image = new Texture("libgdx.png");
@@ -82,7 +80,7 @@ public class Main extends ApplicationAdapter {
                         direction = velocityY>0? "Down" : "Up";
                     }
                     //Gdx.app.log("Fling", direction);
-                    testLabel.setText(direction);
+                    btn.setText(direction);
 
                     if(direction.equals("Right")){
                         img.addAction(Actions.moveBy(100, 0));
@@ -120,12 +118,8 @@ public class Main extends ApplicationAdapter {
             }
 
             @Override
-            public void pinchStop() {
-
-            }
+            public void pinchStop() {}
         }));
-
-        Gdx.input.setInputProcessor(inputMultiplexer);
 
         table = new Table();
         table.setFillParent(true);
@@ -138,21 +132,46 @@ public class Main extends ApplicationAdapter {
 
             @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                testLabel.setText("Click");
+                btn.setText("Click");
             }
         });
 
-        //table.add(btn).center();
+        table.add(btn).center();
 
-        table.add(img).center();
+        //table.add(img).center();
         stage.addActor(table);
     }
 
     @Override
-    public void render() {
+    public void show() {
+        Gdx.input.setInputProcessor(inputMultiplexer);
+    }
+
+    @Override
+    public void hide() {
+
+    }
+
+    @Override
+    public void render(float delta) {
         input();
         logic();
         draw();
+    }
+
+    @Override
+    public void resize(int width, int height) {
+
+    }
+
+    @Override
+    public void pause() {
+
+    }
+
+    @Override
+    public void resume() {
+
     }
 
     private void input(){
@@ -169,7 +188,7 @@ public class Main extends ApplicationAdapter {
         */
     }
     private void draw(){
-        ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
+        ScreenUtils.clear(Color.BLACK);
         //batch.begin();
         //batch.draw(image, 140, 210);
         stage.act();
