@@ -6,8 +6,10 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -34,14 +36,20 @@ public class GameScreen implements Screen {
     private TextButton btn;
     private float timer;
 
-    private Player player;
+    //private Player player;
+    private Sprite player;
 
     public GameScreen(Game aGame) {
         game = aGame;
 
         batch = new SpriteBatch();
         background = new Texture("img/scatola.jpg");
-        player = new Player(new Texture("img/ominoDavanti.jpg"), 4, 4);
+
+        //player = new Player(new Texture("img/ominoDavanti.jpg"), 4, 4);
+        player = new Sprite(new Texture("img/ominoDavanti.jpg"));
+        player.setSize(1,1);
+
+        player.setPosition(4,4);
 
         uiViewport = new ScreenViewport(); //viewport for ui elements (buttons)
         gameViewport = new FitViewport(Sokoban.width, Sokoban.height); //viewport for rendering the game
@@ -73,7 +81,6 @@ public class GameScreen implements Screen {
             }
         });
 
-
         //table.add(btn).center(); DEBUG BUTTON
 
         stage.addActor(table);
@@ -84,20 +91,11 @@ public class GameScreen implements Screen {
         //temporarily arrangement for movement listener (i recommend to collapse this mess)
         inputMultiplexer.addProcessor(new GestureDetector(new GestureDetector.GestureListener() {
             @Override
-            public boolean touchDown(float x, float y, int pointer, int button) {
-                return false;
-            }
-
+            public boolean touchDown(float x, float y, int pointer, int button) {return false;}
             @Override
-            public boolean tap(float x, float y, int count, int button) {
-                return false;
-            }
-
+            public boolean tap(float x, float y, int count, int button) {return false;}
             @Override
-            public boolean longPress(float x, float y) {
-                return false;
-            }
-
+            public boolean longPress(float x, float y) {return false;}
             @Override
             public boolean fling(float velocityX, float velocityY, int button) {
                 Vector2 vec2 = new Vector2(velocityX, velocityY);
@@ -110,40 +108,39 @@ public class GameScreen implements Screen {
                     }
                     btn.setText(direction);
 
-                    if(direction.equals("Right")){
-                        player.moveBy(1,0);
+                    if(direction.equals("Right")){ //temp
+                        //player.moveBy(1,0);
+                        player.translateX(1);
+                        player.setFlip(false, false);
+                        player.setTexture(new Texture("img/ominoLato.jpg"));
                     }else if(direction.equals("Left")){
-                        player.moveBy(-1,0);
+                        //player.moveBy(-1,0);
+                        player.translateX(-1);
+                        player.setFlip(true, false);
+                        player.setTexture(new Texture("img/ominoLato.jpg"));
                     }else if(direction.equals("Down")){
-                        player.moveBy(0,-1);
+                        //player.moveBy(0,-1);
+                        player.translateY(-1);
+                        player.setFlip(false, false);
+                        player.setTexture(new Texture("img/ominoDavanti.jpg"));
                     }else { //Up
-                        player.moveBy(0,1);
+                        //player.moveBy(0,1);
+                        player.translateY(1);
+                        player.setFlip(false, false);
+                        player.setTexture(new Texture("img/ominoDietro.jpg"));
                     }
                 }
-
                 return true;
             }
 
             @Override
-            public boolean pan(float x, float y, float deltaX, float deltaY) {
-                return false;
-            }
-
+            public boolean pan(float x, float y, float deltaX, float deltaY) {return false;}
             @Override
-            public boolean panStop(float x, float y, int pointer, int button) {
-                return false;
-            }
-
+            public boolean panStop(float x, float y, int pointer, int button) {return false;}
             @Override
-            public boolean zoom(float initialDistance, float distance) {
-                return false;
-            }
-
+            public boolean zoom(float initialDistance, float distance) {return false;}
             @Override
-            public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {
-                return false;
-            }
-
+            public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {return false;}
             @Override
             public void pinchStop() {}
         }));
@@ -197,6 +194,10 @@ public class GameScreen implements Screen {
         timer /= 100;
         testLabel.setText(""+timer);
         */
+
+        //constrain player within bounds
+        player.setX(MathUtils.clamp(player.getX(), 0, Sokoban.width-player.getWidth()));
+        player.setY(MathUtils.clamp(player.getY(), 0, Sokoban.height-player.getHeight()));
     }
     private void draw(){
         ScreenUtils.clear(Color.BLACK);
@@ -204,6 +205,7 @@ public class GameScreen implements Screen {
         gameViewport.apply();
         batch.setProjectionMatrix(gameViewport.getCamera().combined);
 
+        //
         batch.begin();
         batch.draw(background, 0, 0, 1, 1);
         batch.draw(background, 0, Sokoban.height-1, 1, 1);
@@ -212,8 +214,10 @@ public class GameScreen implements Screen {
         player.draw(batch);
 
         batch.end();
+        //
 
         uiViewport.apply();
+
         stage.act();
         stage.draw();
     }
@@ -222,6 +226,7 @@ public class GameScreen implements Screen {
     public void dispose() {
         batch.dispose();
         background.dispose();
+        player.getTexture().dispose();
         stage.dispose();
     }
 }

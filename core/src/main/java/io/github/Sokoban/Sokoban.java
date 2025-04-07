@@ -9,8 +9,8 @@ public class Sokoban extends Game {
     static public Skin gameSkin;
     static public BitmapFont font; //default font
 
-    static public int width;
-    static public int height;
+    static public int width; //temp
+    static public int height; //temp
 
     @Override
     public void create() {
