@@ -1,39 +1,40 @@
 package io.github.Sokoban;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
 
 public class Player extends Sprite implements GestureDetector.GestureListener {
-
-    public Player(Texture texture){
+    boolean canMoveRight;
+    boolean canMoveLeft;
+    boolean canMoveUp;
+    boolean canMoveDown;
+    //float timer; //temp, for pan
+    public Player(Texture texture){ //TODO (maybe) use texture packer
         super(texture);
+        canMoveRight = true;
+        canMoveLeft = true;
+        canMoveUp = true;
+        canMoveDown = true;
+
     }
 
-    @Override
-    public void translateX(float xAmount) {
-        setTexture(new Texture("img/ominoLato.jpg"));
-        setFlip(xAmount<0, false);
-        super.translateX(xAmount);
-    }
-
-    @Override
-    public void translateY(float yAmount) {
-        if(yAmount<0){
-            setTexture(new Texture("img/ominoDavanti.jpg"));
-        }else{
-            setTexture(new Texture("img/ominoDietro.jpg"));
+    public void moveX(float x){//TODO fix facing
+        if(x<0 || x>0){
+            setFlip(x<0, false);
         }
-        flip(isFlipX(), false);
-        super.translateY(yAmount);
+        super.translateX(x);
     }
+
+    public void moveY(float y) {//TODO fix facing
+        flip(isFlipX(), false);
+        super.translateY(y);
+    }
+
+
 
     //Gesture listener
     @Override
@@ -43,22 +44,47 @@ public class Player extends Sprite implements GestureDetector.GestureListener {
     @Override
     public boolean longPress(float x, float y) {return false;}
     @Override
-    public boolean fling(float velocityX, float velocityY, int button) {
-        Vector2 vec2 = new Vector2(velocityX, velocityY);
-        if(vec2.len() > 500){
-            if(Math.abs(velocityX) > Math.abs(velocityY)){
-                translateX(velocityX>0? 1 : -1);
+    public boolean fling(float velocityX, float velocityY, int button) {//TODO fix facing
+        /**/
+        Vector2 fling = new Vector2(velocityX, velocityY);
+        if(fling.len() > 500){ //idk arbitrary value for velocity
+            if(Math.abs(velocityX) > Math.abs(velocityY)){ //which axis flings more?
+
+                setTexture(new Texture("img/playerSide.jpg"));//TODO parametrize
+                //horizontal positive?canMove?
+                moveX(velocityX>0? (canMoveRight? 1:0) : (canMoveLeft? -1:0));
             }else{
-                translateY(velocityY>0? -1 : 1);
+
+                if(velocityY>0){
+                    setTexture(new Texture("img/playerFront.jpg"));//TODO parametrize
+                }else if(velocityY<0){
+                    setTexture(new Texture("img/playerBack.jpg"));//TODO parametrize
+                }
+                //vertical positive?canMove?
+                moveY(velocityY>0? (canMoveDown? -1:0) : (canMoveUp? 1:0));
             }
         }
         return true;
+        //return false;
     }
-    //pan vs fling which to choose?
+    //for now i prefer using fling
     @Override
     public boolean pan(float x, float y, float deltaX, float deltaY) {
+        /*
+        float delta = Gdx.graphics.getDeltaTime();
+        timer += delta;
 
+        if(timer>.2f){ //another arbitrary value
+            timer = 0f;
+            if(Math.abs(deltaX) > Math.abs(deltaY)){
+                translateX(deltaX>0? 1 : -1);
+            }else{
+                translateY(deltaY>0? -1 : 1);
+            }
+        }
         return true;
+        */
+        return false;
     }
     @Override
     public boolean panStop(float x, float y, int pointer, int button) {return false;}
@@ -69,6 +95,7 @@ public class Player extends Sprite implements GestureDetector.GestureListener {
     @Override
     public void pinchStop() {}
     //End gesture handling
+
 
     @Override
     public void draw(Batch batch){
