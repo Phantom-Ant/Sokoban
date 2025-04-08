@@ -36,39 +36,36 @@ public class GameScreen implements Screen {
     private TextButton btn;
     private float timer;
 
-    //private Player player;
-    private Sprite player;
+    private Player player;
 
     public GameScreen(Game aGame) {
         game = aGame;
 
         batch = new SpriteBatch();
-        background = new Texture("img/scatola.jpg");
-
-        //player = new Player(new Texture("img/ominoDavanti.jpg"), 4, 4);
-        player = new Sprite(new Texture("img/ominoDavanti.jpg"));
-        player.setSize(1,1);
-
-        player.setPosition(4,4);
 
         uiViewport = new ScreenViewport(); //viewport for ui elements (buttons)
         gameViewport = new FitViewport(Sokoban.width, Sokoban.height); //viewport for rendering the game
 
         stage = new Stage(uiViewport, batch);
 
+        //objects
 
+        background = new Texture("img/scatola.jpg"); //test sprite
+
+        player = new Player(new Texture("img/ominoDavanti.jpg"));
+
+        player.setSize(1,1);
+        player.setPosition(4,4);
+
+
+        // btn
         TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
         style.font = Sokoban.font;
         //
         btn = new TextButton("Click?", style);
         //
         btn.getLabel().setAlignment(Align.center);
-
-
-        table = new Table();
-        table.setFillParent(true);
-
-
+        //
         btn.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -81,71 +78,18 @@ public class GameScreen implements Screen {
             }
         });
 
+        table = new Table();
+        table.setFillParent(true);
+
         //table.add(btn).center(); DEBUG BUTTON
 
         stage.addActor(table);
 
+        // input processors
         inputMultiplexer = new InputMultiplexer();
+        //
         inputMultiplexer.addProcessor(stage);
-
-        //temporarily arrangement for movement listener (i recommend to collapse this mess)
-        inputMultiplexer.addProcessor(new GestureDetector(new GestureDetector.GestureListener() {
-            @Override
-            public boolean touchDown(float x, float y, int pointer, int button) {return false;}
-            @Override
-            public boolean tap(float x, float y, int count, int button) {return false;}
-            @Override
-            public boolean longPress(float x, float y) {return false;}
-            @Override
-            public boolean fling(float velocityX, float velocityY, int button) {
-                Vector2 vec2 = new Vector2(velocityX, velocityY);
-                if(vec2.len() > 500){
-                    String direction = "";
-                    if(Math.abs(velocityX) > Math.abs(velocityY)){
-                        direction = velocityX>0? "Right" : "Left";
-                    }else{
-                        direction = velocityY>0? "Down" : "Up";
-                    }
-                    btn.setText(direction);
-
-                    if(direction.equals("Right")){ //temp
-                        //player.moveBy(1,0);
-                        player.translateX(1);
-                        player.setFlip(false, false);
-                        player.setTexture(new Texture("img/ominoLato.jpg"));
-                    }else if(direction.equals("Left")){
-                        //player.moveBy(-1,0);
-                        player.translateX(-1);
-                        player.setFlip(true, false);
-                        player.setTexture(new Texture("img/ominoLato.jpg"));
-                    }else if(direction.equals("Down")){
-                        //player.moveBy(0,-1);
-                        player.translateY(-1);
-                        player.setFlip(false, false);
-                        player.setTexture(new Texture("img/ominoDavanti.jpg"));
-                    }else { //Up
-                        //player.moveBy(0,1);
-                        player.translateY(1);
-                        player.setFlip(false, false);
-                        player.setTexture(new Texture("img/ominoDietro.jpg"));
-                    }
-                }
-                return true;
-            }
-
-            @Override
-            public boolean pan(float x, float y, float deltaX, float deltaY) {return false;}
-            @Override
-            public boolean panStop(float x, float y, int pointer, int button) {return false;}
-            @Override
-            public boolean zoom(float initialDistance, float distance) {return false;}
-            @Override
-            public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {return false;}
-            @Override
-            public void pinchStop() {}
-        }));
-
-
+        inputMultiplexer.addProcessor(new GestureDetector(player));
     }
 
     @Override
