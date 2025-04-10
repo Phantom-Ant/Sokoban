@@ -70,7 +70,6 @@ function drawMap() {
     }
   }
 
-  // Draw player with animation
   ctx.fillStyle = tiles.player;
   ctx.beginPath();
   ctx.arc(player.x * tileSize + 24, player.y * tileSize + 24, 18, 0, 2 * Math.PI);
@@ -133,7 +132,7 @@ resetMap();
 document.getElementById("nextLevelBtn").addEventListener("click", () => {
   level++;
   document.getElementById("level").textContent = level;
-  alert("Prossimo livello coming soon!");
+  alert("ancora in aggiornamento ahaha");
 });
 
 loadLevel();
