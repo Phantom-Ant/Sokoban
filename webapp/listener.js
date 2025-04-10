@@ -6,3 +6,5 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'ArrowRight') player.x += player.speed+movement;
     requestAnimationFrame(reDraw);
   });
+
+  //document.getElementById("").play();

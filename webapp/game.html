@@ -1,13 +1,31 @@
 <!DOCTYPE html>
+<html lang="it">
 <head>
-    <link rel="stylesheet" href="game.css">
+  <meta charset="UTF-8" />
+  <title>Sokoban</title>
+  <link rel="stylesheet" href="game.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
-<body class="body">
-    <div id="game">
-        <!--It's like a sheet, all the components will be drawn on this component.-->
-        <canvas id ="window"  width="500" height="400"></canvas>
+<body>
+  <div class="container">
+    <h1 class="title">Sokoban</h1>
+
+    <div class="ui">
+      <span>Mosse: <span id="moves">0</span></span>
+      <span>Livello: <span id="level">1</span></span>
     </div>
 
-    <script src="game.js"></script>
-    <script src="listener.js"></script>
+    <canvas id="window" width="480" height="480"></canvas>
+
+    <div class="controls">
+      <button id="restartBtn">🔄 Riavvia</button>
+      <button id="nextLevelBtn" class="hidden">➡️ Prossimo livello</button>
+    </div>
+
+    <div id="message" class="message hidden">Livello completato!</div>
+  </div>
+
+  <!-- parte audio -->
+  <script src="game.js"></script>
 </body>
+</html>
