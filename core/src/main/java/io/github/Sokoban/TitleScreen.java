@@ -41,7 +41,7 @@ public class TitleScreen implements Screen {
 
             @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                game.setScreen(new Main(game));
+                game.setScreen(new GameScreen(game));
             }
         });
         //table.add(lblTitle).center();
