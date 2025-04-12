@@ -6,16 +6,12 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -92,9 +88,8 @@ public class GameScreen implements Screen {
         box.setPosition(5,1);
         boxes.add(box);
 
-
-
         // btn
+        /*
         TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
         style.font = Sokoban.font;
         //
@@ -113,7 +108,7 @@ public class GameScreen implements Screen {
                 btn.setText("Click");
                 //game.setScreen(new TitleScreen(game));
             }
-        });
+        });*/
 
         table = new Table();
         table.setFillParent(true);
@@ -197,11 +192,6 @@ public class GameScreen implements Screen {
         boolean isBounded = (0<=posX && posX<Sokoban.width) && (0<=posY && posY<Sokoban.height);
 
         if(!playerWallCollision && canMoveForward && isBounded){
-
-            player.canMoveUp = player.getY()<Sokoban.height-1;
-            player.canMoveDown = player.getY()>0;
-            player.canMoveRight = player.getX()<Sokoban.width-1;
-            player.canMoveLeft = player.getX()>0;
 
             pushBox(player, moveX, moveY);
             player.moveX(moveX);

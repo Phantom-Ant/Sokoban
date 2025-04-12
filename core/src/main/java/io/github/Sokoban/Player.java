@@ -7,10 +7,6 @@ import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
 
 public class Player extends Sprite implements GestureDetector.GestureListener {
-    boolean canMoveRight;
-    boolean canMoveLeft;
-    boolean canMoveUp;
-    boolean canMoveDown;
 
     private boolean dirty; //needs to be drawn/updated
 
@@ -21,29 +17,16 @@ public class Player extends Sprite implements GestureDetector.GestureListener {
     //float timer; //temp, for pan
     public Player(Texture texture){ //TODO (maybe) use texture packer
         super(texture);
-        canMoveRight = true;
-        canMoveLeft = true;
-        canMoveUp = true;
-        canMoveDown = true;
 
         dirty=true;
     }
-    public boolean canMoveX(float x){
-        return (canMoveLeft && x<0) || (canMoveRight && x>0);
-    }
-    public boolean canMoveY(float y){
-        return (canMoveUp && y>0) || (canMoveDown && y<0);
-    }
     public void moveX(float x){
-
-
-        if(canMoveX(x)){
+        if(x<0||x>0){
             super.translateX(x);
         }
     }
     public void moveY(float y) {
-
-        if(canMoveY(y)){
+        if(y>0||y<0){
             super.translateY(y);
         }
     }
@@ -91,9 +74,6 @@ public class Player extends Sprite implements GestureDetector.GestureListener {
                     setTexture(new Texture("img/playerBack.jpg"));//TODO parametrize
                 }
             }
-
-
-
         }
         return true;
         //return false;
