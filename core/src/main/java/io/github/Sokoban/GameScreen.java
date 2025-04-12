@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -22,7 +21,6 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class GameScreen implements Screen {
@@ -40,8 +38,8 @@ public class GameScreen implements Screen {
     private Texture wallTexture, boxTexture, targetTexture;
     private Player player;
     private boolean[][] walls;
+    private boolean[][] targets;
     private ArrayList<Box> boxes = new ArrayList<>();
-    private ArrayList<Sprite> targets = new ArrayList<>();
 
     public GameScreen(Game aGame) {
         game = aGame;
@@ -53,16 +51,18 @@ public class GameScreen implements Screen {
 
         stage = new Stage(uiViewport, batch);
 
+        //textures
+        wallTexture = new Texture("img/wall.png"); //TODO use better image for walls
+        boxTexture = new Texture("img/box.png");
+        targetTexture = new Texture("img/target.png");//TODO use better image for targets
+
         //objects
         player = new Player(new Texture("img/playerFront.jpg"));
 
         player.setSize(1,1);
-        player.setPosition(4,4);
+        player.setPosition(4,5);
 
-        wallTexture = new Texture("img/wall.png"); //TODO use better image for walls
-        boxTexture = new Texture("img/box.png"); //test sprite
-        targetTexture = new Texture("img/target.png");//TODO use better image for targets
-
+        //walls
         walls = new boolean[][]{{true, true, true, true, true, true, true, true},
                                 {true, false, false, false, false, false, false, true},
                                 {true, false, false, false, false, false, false, true},
@@ -71,29 +71,28 @@ public class GameScreen implements Screen {
                                 {true, false, false, false, false, false, false, true},
                                 {true, false, false, false, false, false, false, true},
                                 {true, true, true, true, true, true, true, true}};
-
-
-        //test boxes
-        Box box = new Box(false);
-        box.setPosition(2,2);
-        boxes.add(box);
-        box = new Box(false);
-        box.setPosition(1,1);
-        boxes.add(box);
-        box = new Box(false);
-        box.setPosition(2,1);
-        boxes.add(box);
-
         //targets
-        Sprite target = new Sprite(targetTexture);
-        target.setPosition(6,2);
-        targets.add(target);
-        target = new Sprite(targetTexture);
-        target.setPosition(4,2);
-        targets.add(target);
-        target = new Sprite(targetTexture);
-        target.setPosition(6,4);
-        targets.add(target);
+        targets = new boolean[][]{{false, false, false, false, false, false, false, false},
+                                  {false, false, false, false, false, false, false, false},
+                                  {false, false, false, false, false, false, true, false},
+                                  {false, false, false, false, false, false, false, false},
+                                  {false, false, false, false, false, false, true, false},
+                                  {false, false, false, false, false, false, false, false},
+                                  {false, false, false, false, false, false, true, false},
+                                  {false, false, false, false, false, false, false, false}};
+        //boxes
+
+        Box box = new Box(false);
+        box.setPosition(5,5);
+        boxes.add(box);
+        box = new Box(false);
+        box.setPosition(5,3);
+        boxes.add(box);
+        box = new Box(false);
+        box.setPosition(5,1);
+        boxes.add(box);
+
+
 
         // btn
         TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
@@ -176,13 +175,11 @@ public class GameScreen implements Screen {
         timer /= 100;
         testLabel.setText(""+timer);
         */
-        //TODO can i move this and related logic to an update(walls, boxes) method inside player? would it be better?
-        player.canMoveUp = canPlayerMoveDirection(0,1);
-        player.canMoveDown = canPlayerMoveDirection(0,-1);
-        player.canMoveRight = canPlayerMoveDirection(1,0);
-        player.canMoveLeft = canPlayerMoveDirection(-1,0);
+        if(player.isDirty()) {// if the player needs to be drawn
+            tryMoving(player);
+        }
 
-        //TODO turn these in functions
+        //TODO move these constrains to tryMoving
         /*
         //constrain player within bounds
         player.canMoveUp = player.getY()<Sokoban.height-1;
@@ -193,20 +190,28 @@ public class GameScreen implements Screen {
 
     }
 
-    boolean canPlayerMoveDirection(int x, int y){
+    public void tryMoving(Player player){//TODO add world bound conditions
 
         int posX = (int)player.getX();
         int posY = (int)player.getY();
 
-        boolean playerWallCollision = wallCollision(posX, posY, x, y);
-        boolean boxPushable = pushableBox(posX, posY, x, y);
+        int moveX = player.getDirectionX();
+        int moveY = player.getDirectionY();
 
-        return !playerWallCollision && boxPushable;
+        boolean playerWallCollision = wallCollision(posX, posY, moveX, moveY);
+        boolean canMoveForward = canMoveForward(posX, posY, moveX, moveY);
+
+        if(!playerWallCollision && canMoveForward){
+
+            pushBox(player, moveX, moveY);
+            player.moveX(moveX);
+            player.moveY(moveY);
+        }
     }
-
-    boolean pushableBox(int posX, int posY, int moveX, int moveY){//returns true if the box can be moved
+    boolean canMoveForward(int posX, int posY, int moveX, int moveY){//TODO fix collision when box collision isn't adjacent to walls
         int boxX;
         int boxY;
+
         for(Box box: boxes){
             boxX = (int) box.getX();
             boxY = (int) box.getY();
@@ -214,32 +219,57 @@ public class GameScreen implements Screen {
                 if(wallCollision(boxX, boxY, moveX, moveY)){
                     return false;
                 }else{
-                    return pushableBox(boxX, boxY, moveX, moveY);
+                    return canMoveForward(boxX, boxY, moveX, moveY);
                 }
             }
         }
         return true;
     }
 
-    //TODO check if it is on target and set placed attribute on the box
-    void pushBox(int posX, int posY, int moveX, int moveY){
+    Box boxAt(int posX, int posY){
+
         int boxX;
         int boxY;
+
         for(Box box: boxes){
             boxX = (int) box.getX();
             boxY = (int) box.getY();
-
             if(posX==boxX && posY==boxY){
-                /*if(){ //target check
-
-                }*/
-                Gdx.app.log("BoxDirection", new Vector2(moveX, moveY).toString());
+                return box;
             }
-
         }
+        return null;
+    }
+    boolean isTarget(int posX, int posY){
+
+        int targetX;
+        int targetY;
+
+        for(Box box: boxes){
+            targetX = (int) box.getX();
+            targetY = (int) box.getY();
+            if(posX==targetX && posY==targetY){
+                return true;
+            }
+        }
+        return false;
     }
 
-    boolean wallCollision(int posX, int posY, int moveX, int moveY){
+    //TODO check if it is on target and set placed attribute on the box
+    void pushBox(Player player, int moveX, int moveY){
+        int posX = (int) player.getX();
+        int posY = (int) player.getY();
+
+        Box box = boxAt(posX+moveX, posY+moveY);
+
+        if(box != null){
+            
+            box.translate(moveX, moveY);
+        }
+
+    }
+
+    boolean wallCollision(int posX, int posY, int moveX, int moveY){//TODO fix
         if(moveX != 0) //horizontal
             return walls[posY][MathUtils.clamp(posX+moveX,0, Sokoban.height-1)];
         if(moveY != 0){//vertical
@@ -289,8 +319,11 @@ public class GameScreen implements Screen {
     }
 
     private void drawTargets(SpriteBatch batch){
-        for(Sprite target: targets){
-            batch.draw(targetTexture, target.getX(), target.getY(), 1, 1);
+        for(int i=0; i<Sokoban.height; i++){
+            for(int j=0; j<Sokoban.width; j++){
+                if(targets[i][j])
+                    batch.draw(targetTexture, j, Sokoban.height-1-i, 1, 1);
+            }
         }
     }
 

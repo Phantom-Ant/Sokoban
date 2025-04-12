@@ -12,6 +12,13 @@ public class Player extends Sprite implements GestureDetector.GestureListener {
     boolean canMoveLeft;
     boolean canMoveUp;
     boolean canMoveDown;
+
+    private boolean dirty; //needs to be drawn/updated
+
+    //facing direction
+    private int directionX;
+    private int directionY;
+
     //float timer; //temp, for pan
     public Player(Texture texture){ //TODO (maybe) use texture packer
         super(texture);
@@ -20,26 +27,35 @@ public class Player extends Sprite implements GestureDetector.GestureListener {
         canMoveUp = true;
         canMoveDown = true;
 
+        dirty=true;
     }
-
+    public boolean canMoveX(float x){
+        return (canMoveLeft && x<0) || (canMoveRight && x>0);
+    }
+    public boolean canMoveY(float y){
+        return (canMoveUp && y>0) || (canMoveDown && y<0);
+    }
     public void moveX(float x){
 
-        if(x<0 || x>0){
-            setFlip(x<0, false);
-        }
-        if((canMoveLeft && x<0) || (canMoveRight && x>0)){
+
+        if(canMoveX(x)){
             super.translateX(x);
         }
     }
-
     public void moveY(float y) {
-        flip(isFlipX(), false);
-        if((canMoveUp && y>0) || (canMoveDown && y<0)){
+
+        if(canMoveY(y)){
             super.translateY(y);
         }
     }
 
+    public int getDirectionX() {
+        return directionX;
+    }
 
+    public int getDirectionY() {
+        return directionY;
+    }
 
     //Gesture listener
     @Override
@@ -53,21 +69,32 @@ public class Player extends Sprite implements GestureDetector.GestureListener {
         /**/
         Vector2 fling = new Vector2(velocityX, velocityY);
         if(fling.len() > 500){ //idk arbitrary value for velocity
+            dirty = true;
 
             if(Math.abs(velocityX) > Math.abs(velocityY)){ //which axis flings more?
 
                 setTexture(new Texture("img/playerSide.jpg"));//TODO parametrize
-                //horizontal positive?canMove?
-                moveX(velocityX>0? 1 : -1);
+
+
+                directionX = velocityX>0? 1 : -1;
+                directionY = 0;
+
+                setFlip(velocityX<0, false);
+
             }else{
+                directionX=0;
+                flip(isFlipX(), false);
                 if(velocityY>0){
+                    directionY=-1;
                     setTexture(new Texture("img/playerFront.jpg"));//TODO parametrize
                 }else if(velocityY<0){
+                    directionY=1;
                     setTexture(new Texture("img/playerBack.jpg"));//TODO parametrize
                 }
-                //vertical positive?canMove?
-                moveY(velocityY>0? -1 : 1);
             }
+
+
+
         }
         return true;
         //return false;
@@ -101,10 +128,18 @@ public class Player extends Sprite implements GestureDetector.GestureListener {
     public void pinchStop() {}
     //End gesture handling
 
+    public void invalidate(){
+        dirty = true;
+    }
+
+    boolean isDirty(){
+        return dirty;
+    }
 
     @Override
     public void draw(Batch batch){
         super.draw(batch);
+        dirty = false;
     }
     @Override
     public void draw(Batch batch, float alphaModulation){
