@@ -41,7 +41,7 @@ public class GameScreen implements Screen {
     private boolean[][] targets;
     private ArrayList<Box> boxes = new ArrayList<>();
 
-    public GameScreen(Game aGame) {
+    public GameScreen(Game aGame) {//TODO when you'll load levels from the string remember to set placed attribute on boxes
         game = aGame;
 
         batch = new SpriteBatch();
@@ -178,6 +178,9 @@ public class GameScreen implements Screen {
         if(player.isDirty()) {// if the player needs to be drawn
             tryMoving(player);
         }
+        if(checkWin()){
+            game.setScreen(new TitleScreen(game));//TODO change with more appropriate screen
+        }
 
         //TODO move these constrains to tryMoving
         /*
@@ -240,19 +243,8 @@ public class GameScreen implements Screen {
         }
         return null;
     }
-    boolean isTarget(int posX, int posY){
-
-        int targetX;
-        int targetY;
-
-        for(Box box: boxes){
-            targetX = (int) box.getX();
-            targetY = (int) box.getY();
-            if(posX==targetX && posY==targetY){
-                return true;
-            }
-        }
-        return false;
+    boolean isOnTarget(int posX, int posY){
+        return targets[Sokoban.height-1-posY][posX];
     }
 
     //TODO check if it is on target and set placed attribute on the box
@@ -263,8 +255,8 @@ public class GameScreen implements Screen {
         Box box = boxAt(posX+moveX, posY+moveY);
 
         if(box != null){
-            
             box.translate(moveX, moveY);
+            box.setPlaced(isOnTarget((int)box.getX(), (int)box.getY()));
         }
 
     }
@@ -325,6 +317,15 @@ public class GameScreen implements Screen {
                     batch.draw(targetTexture, j, Sokoban.height-1-i, 1, 1);
             }
         }
+    }
+
+    boolean checkWin(){
+        for(Box box : boxes ){
+            if(!box.isPlaced()){
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
