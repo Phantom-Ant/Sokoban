@@ -4,8 +4,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 
-import org.w3c.dom.Text;
-
 public class Box extends Sprite {
     boolean canMoveRight;
     boolean canMoveLeft;

@@ -41,7 +41,7 @@ public class GameScreen implements Screen {
     private boolean[][] targets;
     private ArrayList<Box> boxes = new ArrayList<>();
 
-    public GameScreen(Game aGame) {//TODO when you'll load levels from the string remember to set placed attribute on boxes
+    public GameScreen(Game aGame) {//TODO load levels from the string and remember to set placed attribute on boxes
         game = aGame;
 
         batch = new SpriteBatch();
@@ -182,18 +182,9 @@ public class GameScreen implements Screen {
             game.setScreen(new TitleScreen(game));//TODO change with more appropriate screen
         }
 
-        //TODO move these constrains to tryMoving
-        /*
-        //constrain player within bounds
-        player.canMoveUp = player.getY()<Sokoban.height-1;
-        player.canMoveDown = player.getY()>0;
-        player.canMoveRight = player.getX()<Sokoban.width-1;
-        player.canMoveLeft = player.getX()>0;
-        */
-
     }
 
-    public void tryMoving(Player player){//TODO add world bound conditions
+    public void tryMoving(Player player){
 
         int posX = (int)player.getX();
         int posY = (int)player.getY();
@@ -203,8 +194,14 @@ public class GameScreen implements Screen {
 
         boolean playerWallCollision = wallCollision(posX, posY, moveX, moveY);
         boolean canMoveForward = canMoveForward(posX, posY, moveX, moveY);
+        boolean isBounded = (0<=posX && posX<Sokoban.width) && (0<=posY && posY<Sokoban.height);
 
-        if(!playerWallCollision && canMoveForward){
+        if(!playerWallCollision && canMoveForward && isBounded){
+
+            player.canMoveUp = player.getY()<Sokoban.height-1;
+            player.canMoveDown = player.getY()>0;
+            player.canMoveRight = player.getX()<Sokoban.width-1;
+            player.canMoveLeft = player.getX()>0;
 
             pushBox(player, moveX, moveY);
             player.moveX(moveX);
@@ -261,11 +258,16 @@ public class GameScreen implements Screen {
 
     }
 
-    public boolean wallCollision(int posX, int posY, int moveX, int moveY){//TODO fix
-        if(moveX != 0) //horizontal
-            return walls[posY][MathUtils.clamp(posX+moveX,0, Sokoban.height-1)];
-        if(moveY != 0){//vertical
-            return walls[MathUtils.clamp(posY+moveY,0, Sokoban.width-1)][posX];
+    public boolean wallCollision(int posX, int posY, int moveX, int moveY){
+        //horizontal
+        if(moveX != 0){
+            int wallX = MathUtils.clamp(posX+moveX,0, Sokoban.height-1);
+            return walls[Sokoban.height-1-posY][wallX]; //inverting y as coordinates work the way around (y goes up)
+        }
+        //vertical
+        if(moveY != 0){
+            int wallY = Sokoban.height-1 -MathUtils.clamp(posY+moveY,0, Sokoban.width-1); //inverting y as coordinates work the way around (y goes up)
+            return walls[wallY][posX];
         }
         return false;
     }
