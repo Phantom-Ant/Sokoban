@@ -22,16 +22,21 @@ public class Player extends Sprite implements GestureDetector.GestureListener {
 
     }
 
-    public void moveX(float x){//TODO fix facing
+    public void moveX(float x){
+
         if(x<0 || x>0){
             setFlip(x<0, false);
         }
-        super.translateX(x);
+        if((canMoveLeft && x<0) || (canMoveRight && x>0)){
+            super.translateX(x);
+        }
     }
 
-    public void moveY(float y) {//TODO fix facing
+    public void moveY(float y) {
         flip(isFlipX(), false);
-        super.translateY(y);
+        if((canMoveUp && y>0) || (canMoveDown && y<0)){
+            super.translateY(y);
+        }
     }
 
 
@@ -44,24 +49,24 @@ public class Player extends Sprite implements GestureDetector.GestureListener {
     @Override
     public boolean longPress(float x, float y) {return false;}
     @Override
-    public boolean fling(float velocityX, float velocityY, int button) {//TODO fix facing
+    public boolean fling(float velocityX, float velocityY, int button) {
         /**/
         Vector2 fling = new Vector2(velocityX, velocityY);
         if(fling.len() > 500){ //idk arbitrary value for velocity
+
             if(Math.abs(velocityX) > Math.abs(velocityY)){ //which axis flings more?
 
                 setTexture(new Texture("img/playerSide.jpg"));//TODO parametrize
                 //horizontal positive?canMove?
-                moveX(velocityX>0? (canMoveRight? 1:0) : (canMoveLeft? -1:0));
+                moveX(velocityX>0? 1 : -1);
             }else{
-
                 if(velocityY>0){
                     setTexture(new Texture("img/playerFront.jpg"));//TODO parametrize
                 }else if(velocityY<0){
                     setTexture(new Texture("img/playerBack.jpg"));//TODO parametrize
                 }
                 //vertical positive?canMove?
-                moveY(velocityY>0? (canMoveDown? -1:0) : (canMoveUp? 1:0));
+                moveY(velocityY>0? -1 : 1);
             }
         }
         return true;
