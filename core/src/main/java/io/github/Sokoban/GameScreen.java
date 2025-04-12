@@ -211,7 +211,7 @@ public class GameScreen implements Screen {
             player.moveY(moveY);
         }
     }
-    boolean canMoveForward(int posX, int posY, int moveX, int moveY){//TODO fix collision when box collision isn't adjacent to walls
+    public boolean canMoveForward(int posX, int posY, int moveX, int moveY){
         int boxX;
         int boxY;
 
@@ -221,15 +221,16 @@ public class GameScreen implements Screen {
             if(posX+moveX==boxX && posY+moveY==boxY){//if moves towards box
                 if(wallCollision(boxX, boxY, moveX, moveY)){
                     return false;
-                }else{
-                    return canMoveForward(boxX, boxY, moveX, moveY);
+                }
+                if(boxAt(boxX+moveX, boxY+moveY) != null){
+                    return false;
                 }
             }
         }
         return true;
     }
 
-    Box boxAt(int posX, int posY){
+    public Box boxAt(int posX, int posY){
 
         int boxX;
         int boxY;
@@ -243,12 +244,11 @@ public class GameScreen implements Screen {
         }
         return null;
     }
-    boolean isOnTarget(int posX, int posY){
+    public boolean isOnTarget(int posX, int posY){
         return targets[Sokoban.height-1-posY][posX];
     }
 
-    //TODO check if it is on target and set placed attribute on the box
-    void pushBox(Player player, int moveX, int moveY){
+    public void pushBox( Player player, int moveX, int moveY){
         int posX = (int) player.getX();
         int posY = (int) player.getY();
 
@@ -261,7 +261,7 @@ public class GameScreen implements Screen {
 
     }
 
-    boolean wallCollision(int posX, int posY, int moveX, int moveY){//TODO fix
+    public boolean wallCollision(int posX, int posY, int moveX, int moveY){//TODO fix
         if(moveX != 0) //horizontal
             return walls[posY][MathUtils.clamp(posX+moveX,0, Sokoban.height-1)];
         if(moveY != 0){//vertical
