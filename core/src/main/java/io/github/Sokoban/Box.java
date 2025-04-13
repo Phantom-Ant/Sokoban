@@ -12,9 +12,9 @@ public class Box extends Sprite {
     }
     public Box(boolean placed){
         if(placed){
-            setTexture(new Texture("img/boxPlaced.png")); //TODO parametrize
+            setTexture(Sokoban.tex_boxPlaced);
         }else{
-            setTexture(new Texture("img/box.png")); //TODO parametrize
+            setTexture(Sokoban.tex_box);
         }
     }
     public boolean isPlaced(){
@@ -22,9 +22,9 @@ public class Box extends Sprite {
     }
     public void setPlaced(boolean placed) {
         if(placed){
-            setTexture(new Texture("img/boxPlaced.png")); //TODO parametrize
+            setTexture(Sokoban.tex_boxPlaced);
         }else{
-            setTexture(new Texture("img/box.png")); //TODO parametrize
+            setTexture(Sokoban.tex_box);
         }
         this.placed = placed;
     }

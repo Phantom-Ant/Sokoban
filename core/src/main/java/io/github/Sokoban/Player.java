@@ -55,7 +55,7 @@ public class Player extends Sprite implements GestureDetector.GestureListener {
 
             if(Math.abs(velocityX) > Math.abs(velocityY)){ //which axis flings more?
 
-                setTexture(new Texture("img/playerSide.jpg"));//TODO parametrize
+                setTexture(Sokoban.tex_playerSide);
 
 
                 directionX = velocityX>0? 1 : -1;
@@ -68,10 +68,10 @@ public class Player extends Sprite implements GestureDetector.GestureListener {
                 flip(isFlipX(), false);
                 if(velocityY>0){
                     directionY=-1;
-                    setTexture(new Texture("img/playerFront.jpg"));//TODO parametrize
+                    setTexture(Sokoban.tex_playerFront);
                 }else if(velocityY<0){
                     directionY=1;
-                    setTexture(new Texture("img/playerBack.jpg"));//TODO parametrize
+                    setTexture(Sokoban.tex_playerBack);
                 }
             }
         }

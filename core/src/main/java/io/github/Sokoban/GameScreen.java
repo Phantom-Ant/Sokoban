@@ -30,12 +30,10 @@ public class GameScreen implements Screen {
     private Table table;
     private TextButton btn;
     private float timer;
-
-    private Texture wallTexture, boxTexture, targetTexture;//TODO add floor texture
     private Player player;
     private boolean[][] walls;
     private boolean[][] targets;
-    //private boolean[][] floor; TODO add floor array
+    private boolean[][] floor;
     private ArrayList<Box> boxes = new ArrayList<>();
 
     //TEST XSB (Level 1 from Thinking Rabbit)
@@ -51,7 +49,7 @@ public class GameScreen implements Screen {
                              "____#-----#########\n" +
                              "____#######________\n";
 
-    public GameScreen(Game aGame) {//TODO load levels from the string and remember to set placed attribute on boxes
+    public GameScreen(Game aGame) {
         //TODO consider landscape support
         game = aGame;
         batch = new SpriteBatch();
@@ -59,13 +57,7 @@ public class GameScreen implements Screen {
         stage = new Stage(uiViewport, batch);
 
         ///textures
-        //TODO: maybe parametrize statically in Sokoban.java
-        wallTexture = new Texture("img/wall.png"); //TODO use better image for walls
-        boxTexture = new Texture("img/box.png");
-        targetTexture = new Texture("img/target.png");//TODO use better image for targets
-        //TODO floor texture
-
-        player = new Player(new Texture("img/playerFront.jpg"));//TODO: parametrize
+        player = new Player(Sokoban.tex_playerFront);
         player.setSize(1,1);
 
         ///load level
@@ -127,7 +119,6 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        input();
         logic();
         draw();
     }
@@ -148,9 +139,6 @@ public class GameScreen implements Screen {
     public void resume() {
 
     }
-
-    private void input(){
-    }
     private void logic(){
         //timer test
         /*
@@ -169,6 +157,85 @@ public class GameScreen implements Screen {
         }
 
     }
+    private void draw(){
+        ScreenUtils.clear(Color.BLACK);
+
+        gameViewport.apply();
+        batch.setProjectionMatrix(gameViewport.getCamera().combined);
+
+        // textures and sprites drawing
+        batch.begin();
+
+        drawFloor(batch);
+        drawWalls(batch);
+        drawTargets(batch);
+        drawBoxes(batch);
+
+        player.draw(batch);
+
+        batch.end();
+        //
+
+        uiViewport.apply();
+
+        stage.act();
+        stage.draw();
+    }
+
+    @Override
+    public void dispose() {
+        batch.dispose();
+        Sokoban.tex_wall.dispose();
+        player.getTexture().dispose();
+        Sokoban.tex_box.dispose();
+        stage.dispose();
+    }
+
+
+
+    ///draw methods
+    private void drawWalls(SpriteBatch batch){
+        for(int i=0; i<Sokoban.height; i++){
+            for(int j=0; j<Sokoban.width; j++){
+                if(walls[i][j])
+                    batch.draw(Sokoban.tex_wall, j, Sokoban.height-1-i, 1, 1);
+            }
+        }
+    }
+
+    private void drawFloor(SpriteBatch batch){
+        for(int i=0; i<Sokoban.height; i++){
+            for(int j=0; j<Sokoban.width; j++){
+                if(floor[i][j])
+                    batch.draw(Sokoban.tex_floor, j, Sokoban.height-1-i, 1, 1);
+            }
+        }
+    }
+    private void drawTargets(SpriteBatch batch){
+        for(int i=0; i<Sokoban.height; i++){
+            for(int j=0; j<Sokoban.width; j++){
+                if(targets[i][j])
+                    batch.draw(Sokoban.tex_target, j, Sokoban.height-1-i, 1, 1);
+            }
+        }
+    }
+    private void drawBoxes(SpriteBatch batch){
+        for(Box box : boxes){
+            batch.draw(box.getTexture(), box.getX(), box.getY(), 1, 1);
+        }
+    }
+
+    
+    boolean checkWin(){
+        for(Box box : boxes ){
+            if(!box.isPlaced()){
+                return false;
+            }
+        }
+        return true;
+    }
+
+
     /*public void loadTestLevel(){
         Sokoban.width = 8;//TEST
         Sokoban.height = 8;//TEST
@@ -184,6 +251,15 @@ public class GameScreen implements Screen {
             {true, false, false, false, false, false, false, true},
             {true, false, false, false, false, false, false, true},
             {true, true, true, true, true, true, true, true}};
+        //floor
+        floor = new boolean[][]{{false, false, false, false, false, false, false, false},
+            {false, true, true, true, true, true, true, false},
+            {false, true, true, true, true, true, true, false},
+            {false, true, true, true, true, true, true, false},
+            {false, true, true, true, true, true, true, false},
+            {false, true, true, true, true, true, true, false},
+            {false, true, true, true, true, true, true, false},
+            {false, false, false, false, false, false, false, false}};
         //targets
         targets = new boolean[][]{{false, false, false, false, false, false, false, false},
             {false, false, false, false, false, false, false, false},
@@ -205,13 +281,14 @@ public class GameScreen implements Screen {
         boxes.add(box);
 
     }*/
-    public void loadLevelFromXSB(String xsb){//TODO implement floor detection
+    public void loadLevelFromXSB(String xsb){
         String[] xsbs = xsb.split("\n");
 
         Sokoban.height = xsbs.length;
         Sokoban.width = xsbs[0].length();
 
         walls = new boolean[Sokoban.height][Sokoban.width];
+        floor = new boolean[Sokoban.height][Sokoban.width];
         targets = new boolean[Sokoban.height][Sokoban.width];
         Box box;
         char c;
@@ -222,7 +299,7 @@ public class GameScreen implements Screen {
 
                 walls[i][j] = c=='#';
                 targets[i][j] = c=='.'||c=='+'||c=='*';
-                //floor[i][j] = c=='-'; //TODO do something like this
+                floor[i][j] = c!='_' && c!='#';
 
                 if(c=='@'||c=='+'){
                     player.setPosition(j,Sokoban.height-1-i);
@@ -236,6 +313,7 @@ public class GameScreen implements Screen {
             }
         }
     }
+
     public void tryMoving(Player player){
 
         int posX = (int)player.getX();
@@ -255,6 +333,20 @@ public class GameScreen implements Screen {
             player.moveY(moveY);
         }
     }
+    public void pushBox( Player player, int moveX, int moveY){
+        int posX = (int) player.getX();
+        int posY = (int) player.getY();
+
+        Box box = boxAt(posX+moveX, posY+moveY);
+
+        if(box != null){
+            box.translate(moveX, moveY);
+            box.setPlaced(isOnTarget((int)box.getX(), (int)box.getY()));
+        }
+
+    }
+
+    /// collisions and positions
     public boolean canMoveForward(int posX, int posY, int moveX, int moveY){
         int boxX;
         int boxY;
@@ -288,23 +380,10 @@ public class GameScreen implements Screen {
         }
         return null;
     }
+
     public boolean isOnTarget(int posX, int posY){
         return targets[Sokoban.height-1-posY][posX];
     }
-
-    public void pushBox( Player player, int moveX, int moveY){
-        int posX = (int) player.getX();
-        int posY = (int) player.getY();
-
-        Box box = boxAt(posX+moveX, posY+moveY);
-
-        if(box != null){
-            box.translate(moveX, moveY);
-            box.setPlaced(isOnTarget((int)box.getX(), (int)box.getY()));
-        }
-
-    }
-
     public boolean wallCollision(int posX, int posY, int moveX, int moveY){
         //horizontal
         if(moveX != 0){
@@ -317,74 +396,5 @@ public class GameScreen implements Screen {
             return walls[wallY][posX];
         }
         return false;
-    }
-
-
-    private void draw(){
-        ScreenUtils.clear(Color.BLACK);
-
-        gameViewport.apply();
-        batch.setProjectionMatrix(gameViewport.getCamera().combined);
-
-        // textures and sprites drawing
-        batch.begin();
-
-        drawWalls(batch);
-        drawTargets(batch);
-        drawBoxes(batch);
-
-        player.draw(batch);
-
-        batch.end();
-        //
-
-        uiViewport.apply();
-
-        stage.act();
-        stage.draw();
-    }
-
-    ///draw methods
-    private void drawWalls(SpriteBatch batch){
-        for(int i=0; i<Sokoban.height; i++){
-            for(int j=0; j<Sokoban.width; j++){
-                if(walls[i][j])
-                    batch.draw(wallTexture, j, Sokoban.height-1-i, 1, 1);
-            }
-        }
-    }
-
-    private void drawBoxes(SpriteBatch batch){
-        for(Box box : boxes){
-            batch.draw(box.getTexture(), box.getX(), box.getY(), 1, 1);
-        }
-    }
-
-    private void drawTargets(SpriteBatch batch){
-        for(int i=0; i<Sokoban.height; i++){
-            for(int j=0; j<Sokoban.width; j++){
-                if(targets[i][j])
-                    batch.draw(targetTexture, j, Sokoban.height-1-i, 1, 1);
-            }
-        }
-    }
-    //TODO add draw floor method
-    //
-    boolean checkWin(){
-        for(Box box : boxes ){
-            if(!box.isPlaced()){
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public void dispose() {
-        batch.dispose();
-        wallTexture.dispose();
-        player.getTexture().dispose();
-        boxTexture.dispose();
-        stage.dispose();
     }
 }
