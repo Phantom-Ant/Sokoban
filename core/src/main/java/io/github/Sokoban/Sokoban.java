@@ -12,11 +12,11 @@ public class Sokoban extends Game {
     static public int width; //temp
     static public int height; //temp
 
+    static public int moves; //temp
+    static public int pushes; //temp
+
     @Override
     public void create() {
-        width = 8;//TEST
-        height = 8;//TEST
-
         gameSkin = new Skin(Gdx.files.internal("skins/uiskin.json"));
 
         font = new BitmapFont(Gdx.files.internal("skins/default.fnt"));

@@ -5,12 +5,8 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 
 public class Box extends Sprite {
-    boolean canMoveRight;
-    boolean canMoveLeft;
-    boolean canMoveUp;
-    boolean canMoveDown;
-    //
     private boolean placed;
+
     public Box(Texture texture){
         super(texture);
     }
@@ -32,17 +28,6 @@ public class Box extends Sprite {
         }
         this.placed = placed;
     }
-    /*
-    @Override
-    public void setPosition(float x, float y) {
-
-        if(x>0 && !canMoveRight){x=0;}
-        if(x<0 && !canMoveLeft){x=0;}
-        if(y>0 && !canMoveUp){y=0;}
-        if(y<0 && !canMoveDown){y=0;}
-
-        super.setPosition(x,y);
-    }*/
 
     //could be useful overriding these
     @Override
