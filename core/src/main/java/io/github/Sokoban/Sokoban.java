@@ -33,7 +33,7 @@ public class Sokoban extends Game {
         gameSkin = new Skin(Gdx.files.internal("skins/uiskin.json"));
 
         font = new BitmapFont(Gdx.files.internal("skins/default.fnt"));
-        font.getData().setScale(10.0f);
+        font.getData().setScale(5.0f);
 
         ///textures
         tex_playerFront = new Texture("img/playerFront.jpg");//TODO use transparent image for player

@@ -5,18 +5,22 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class GameScreen implements Screen {
@@ -28,13 +32,15 @@ public class GameScreen implements Screen {
 
     private SpriteBatch batch;
     private Table table;
-    private TextButton btn;
+    private TextButton btnUndo;
     private float timer;
     private Player player;
     private boolean[][] walls;
     private boolean[][] targets;
     private boolean[][] floor;
     private ArrayList<Box> boxes = new ArrayList<>();
+
+    private List<Move> moves = new ArrayList<>();
 
     //TEST XSB (Level 1 from Thinking Rabbit)
     private String testXSB = "____#####__________\n" +
@@ -57,7 +63,7 @@ public class GameScreen implements Screen {
         stage = new Stage(uiViewport, batch);
 
         ///textures
-        player = new Player(Sokoban.tex_playerFront);
+        player = new Player(0, -1);
         player.setSize(1,1);
 
         ///load level
@@ -71,15 +77,13 @@ public class GameScreen implements Screen {
         // TODO implement timer, moves and pushes labels
 
         // btn
-        /*
+        //TODO replace with image button
         TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
         style.font = Sokoban.font;
         //
-        btn = new TextButton("Click?", style);
+        btnUndo = new TextButton("UNDO", style);
         //
-        btn.getLabel().setAlignment(Align.center);
-        //
-        btn.addListener(new InputListener() {
+        btnUndo.addListener(new InputListener() {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 return true;
@@ -87,18 +91,19 @@ public class GameScreen implements Screen {
 
             @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                btn.setText("Click");
+                btnUndo.setText("UNDO");
+                undo();
                 //game.setScreen(new TitleScreen(game));
             }
-        });*/
+        });
 
         table = new Table();
         table.setFillParent(true);
 
-        //table.add(btn).center();// DEBUG BUTTON
+        table.align(Align.bottomRight);
+        table.add(btnUndo);// DEBUG BUTTON
 
         stage.addActor(table);
-
 
         /// input processors
         inputMultiplexer = new InputMultiplexer();
@@ -192,7 +197,38 @@ public class GameScreen implements Screen {
     }
 
 
+    public void undo(){
+        Move move=null;
+        if(!moves.isEmpty()){
+            move = moves.remove(moves.size()-1);
+        }
+        if(move != null){
+            player.translate(-move.x, -move.y);
+            player.face(move.x, move.y);
 
+            if(move.box != null){
+                move.box.translate(-move.x, -move.y);
+                move.box.setPlaced(isOnTarget((int)move.box.getX(), (int)move.box.getY()));
+            }
+            //TODO decrease moves
+        }
+    }
+    /*public void undoPush(){ //TODO make this
+        Move move=null;
+        if(!moves.isEmpty()){
+            move = moves.remove(moves.size()-1);
+        }
+        if(move != null){
+            player.translate(-move.x, -move.y);
+            player.face(move.x, -move.y);
+            if(move.box != null){
+                move.box.translate(-move.x, -move.y);
+                move.box.setPlaced(isOnTarget((int)move.box.getX(), (int)move.box.getY()));
+            }
+            //TODO decrease moves
+        }
+    }*/
+    //TODO to implement redo do not remove the move, just get it, use moves counter to keep the index
     ///draw methods
     private void drawWalls(SpriteBatch batch){
         for(int i=0; i<Sokoban.height; i++){
@@ -225,7 +261,7 @@ public class GameScreen implements Screen {
         }
     }
 
-    
+
     boolean checkWin(){
         for(Box box : boxes ){
             if(!box.isPlaced()){
@@ -327,13 +363,12 @@ public class GameScreen implements Screen {
         boolean isBounded = (0<=posX && posX<Sokoban.width) && (0<=posY && posY<Sokoban.height);
 
         if(!playerWallCollision && canMoveForward && isBounded){
-
-            pushBox(player, moveX, moveY);
+            moves.add(new Move(moveX, moveY, pushBox(player, moveX, moveY)));
             player.moveX(moveX);
             player.moveY(moveY);
         }
     }
-    public void pushBox( Player player, int moveX, int moveY){
+    public Box pushBox( Player player, int moveX, int moveY){// returns true if a box was moved
         int posX = (int) player.getX();
         int posY = (int) player.getY();
 
@@ -342,8 +377,9 @@ public class GameScreen implements Screen {
         if(box != null){
             box.translate(moveX, moveY);
             box.setPlaced(isOnTarget((int)box.getX(), (int)box.getY()));
+            return box;
         }
-
+        return null;
     }
 
     /// collisions and positions

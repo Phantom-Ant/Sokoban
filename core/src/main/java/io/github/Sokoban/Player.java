@@ -15,9 +15,14 @@ public class Player extends Sprite implements GestureDetector.GestureListener {
     private int directionY;
 
     //float timer; //temp, for pan
-    public Player(Texture texture){ //TODO (maybe) use texture packer
-        super(texture);
-
+    public Player(){
+        super(Sokoban.tex_playerFront);
+        face(0,-1);
+        dirty=true;
+    }
+    public Player(int x, int y){
+        super(Sokoban.tex_playerFront);
+        face(x,y);
         dirty=true;
     }
     public void moveX(float x){
@@ -37,6 +42,23 @@ public class Player extends Sprite implements GestureDetector.GestureListener {
 
     public int getDirectionY() {
         return directionY;
+    }
+
+    public void face(int x, int y){//direction
+        directionX=x;
+        directionY=y;
+        if(y==0){
+            setFlip(x<0, false);
+            setTexture(Sokoban.tex_playerSide);
+        }
+        if(x==0){
+            flip(isFlipX(), false);
+            if(y<0){
+                setTexture(Sokoban.tex_playerFront);
+            }else if(y>0){
+                setTexture(Sokoban.tex_playerBack);
+            }
+        }
     }
 
     //Gesture listener
