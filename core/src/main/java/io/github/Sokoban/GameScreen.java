@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Align;
@@ -33,6 +34,7 @@ public class GameScreen implements Screen {
     private SpriteBatch batch;
     private Table table;
     private TextButton btnUndo;
+    private Label lblMoves;
     private float timer;
     private Player player;
     private boolean[][] walls;
@@ -73,15 +75,14 @@ public class GameScreen implements Screen {
         gameViewport = new FitViewport(Sokoban.width, Sokoban.height);
 
         ///ui objects //
-        // TODO implement undo button
         // TODO implement timer, moves and pushes labels
 
         // btn
         //TODO replace with image button
-        TextButton.TextButtonStyle style = new TextButton.TextButtonStyle();
-        style.font = Sokoban.font;
+        TextButton.TextButtonStyle btnStyle = new TextButton.TextButtonStyle();
+        btnStyle.font = Sokoban.font;
         //
-        btnUndo = new TextButton("UNDO", style);
+        btnUndo = new TextButton("UNDO", btnStyle);
         //
         btnUndo.addListener(new InputListener() {
             @Override
@@ -97,13 +98,33 @@ public class GameScreen implements Screen {
             }
         });
 
+        //moves label
+        Label.LabelStyle lblStyle = new Label.LabelStyle();
+        lblStyle.font = Sokoban.font;
+
+        lblMoves = new Label("Moves: 0", lblStyle);
+
+
+        //undo btn
         table = new Table();
         table.setFillParent(true);
-
+        //
         table.align(Align.bottomRight);
-        table.add(btnUndo);// DEBUG BUTTON
-
+        table.add(btnUndo);// undo btn
+        //
         stage.addActor(table);
+        //
+
+        //moves label
+        table = new Table();
+        table.setFillParent(true);
+        //
+        table.align(Align.bottomLeft);
+        table.add(lblMoves);// moves lbl
+        //
+        stage.addActor(table);
+        //
+
 
         /// input processors
         inputMultiplexer = new InputMultiplexer();
@@ -206,11 +227,14 @@ public class GameScreen implements Screen {
             player.translate(-move.x, -move.y);
             player.face(move.x, move.y);
 
+            Sokoban.moves--;
+            lblMoves.setText("Moves: "+Sokoban.moves);
+
             if(move.box != null){
                 move.box.translate(-move.x, -move.y);
                 move.box.setPlaced(isOnTarget((int)move.box.getX(), (int)move.box.getY()));
             }
-            //TODO decrease moves
+
         }
     }
     /*public void undoPush(){ //TODO make this
@@ -358,14 +382,21 @@ public class GameScreen implements Screen {
         int moveX = player.getDirectionX();
         int moveY = player.getDirectionY();
 
+        Box box;
+
         boolean playerWallCollision = wallCollision(posX, posY, moveX, moveY);
         boolean canMoveForward = canMoveForward(posX, posY, moveX, moveY);
         boolean isBounded = (0<=posX && posX<Sokoban.width) && (0<=posY && posY<Sokoban.height);
 
         if(!playerWallCollision && canMoveForward && isBounded){
-            moves.add(new Move(moveX, moveY, pushBox(player, moveX, moveY)));
+            box = pushBox(player, moveX, moveY);
             player.moveX(moveX);
             player.moveY(moveY);
+
+            moves.add(new Move(moveX, moveY, box));
+
+            Sokoban.moves++;
+            lblMoves.setText("Moves: "+Sokoban.moves);
         }
     }
     public Box pushBox( Player player, int moveX, int moveY){// returns true if a box was moved
