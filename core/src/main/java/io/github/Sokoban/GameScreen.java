@@ -15,6 +15,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -26,6 +27,13 @@ import java.util.Stack;
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class GameScreen implements Screen {
     private Game game;
+
+    int width;
+    int height;
+    int n_moves; //TODO remove and use moves size instead
+    int pushes;
+
+
     private Stage stage;
     private FitViewport gameViewport;
     private ScreenViewport uiViewport;
@@ -45,7 +53,7 @@ public class GameScreen implements Screen {
     private List<Move> moves = new ArrayList<>();
 
     //TEST XSB (Level 1 from Thinking Rabbit)
-    private String testXSB = "____#####__________\n" +
+    /*private String testXSB = "____#####__________\n" +
                              "____#---#__________\n" +
                              "____#$--#__________\n" +
                              "__###--$##_________\n" +
@@ -55,10 +63,9 @@ public class GameScreen implements Screen {
                              "#-$--$----------..#\n" +
                              "#####-###-#@##--..#\n" +
                              "____#-----#########\n" +
-                             "____#######________\n";
+                             "____#######________\n";*/
 
-    public GameScreen(Game aGame) {
-        //TODO consider landscape support
+    public GameScreen(Game aGame, Level level) {
         game = aGame;
         batch = new SpriteBatch();
         uiViewport = new ScreenViewport(); //viewport for ui elements (buttons)
@@ -70,12 +77,12 @@ public class GameScreen implements Screen {
 
         ///load level
         //loadTestLevel();
-        loadLevelFromXSB(testXSB);
+        loadLevelFromXSB(level.data);
 
-        gameViewport = new FitViewport(Sokoban.width, Sokoban.height);
+        gameViewport = new FitViewport(width, height);
 
         ///ui objects //
-        // TODO implement timer, moves and pushes labels
+        // TODO implement timer, pushes labels
 
         // btn
         //TODO replace with image button
@@ -227,8 +234,8 @@ public class GameScreen implements Screen {
             player.translate(-move.x, -move.y);
             player.face(move.x, move.y);
 
-            Sokoban.moves--;
-            lblMoves.setText("Moves: "+Sokoban.moves);
+            n_moves--;
+            lblMoves.setText("Moves: "+n_moves);
 
             if(move.box != null){
                 move.box.translate(-move.x, -move.y);
@@ -255,27 +262,27 @@ public class GameScreen implements Screen {
     //TODO to implement redo do not remove the move, just get it, use moves counter to keep the index
     ///draw methods
     private void drawWalls(SpriteBatch batch){
-        for(int i=0; i<Sokoban.height; i++){
-            for(int j=0; j<Sokoban.width; j++){
+        for(int i=0; i<height; i++){
+            for(int j=0; j<width; j++){
                 if(walls[i][j])
-                    batch.draw(Sokoban.tex_wall, j, Sokoban.height-1-i, 1, 1);
+                    batch.draw(Sokoban.tex_wall, j, height-1-i, 1, 1);
             }
         }
     }
 
     private void drawFloor(SpriteBatch batch){
-        for(int i=0; i<Sokoban.height; i++){
-            for(int j=0; j<Sokoban.width; j++){
+        for(int i=0; i<height; i++){
+            for(int j=0; j<width; j++){
                 if(floor[i][j])
-                    batch.draw(Sokoban.tex_floor, j, Sokoban.height-1-i, 1, 1);
+                    batch.draw(Sokoban.tex_floor, j, height-1-i, 1, 1);
             }
         }
     }
     private void drawTargets(SpriteBatch batch){
-        for(int i=0; i<Sokoban.height; i++){
-            for(int j=0; j<Sokoban.width; j++){
+        for(int i=0; i<height; i++){
+            for(int j=0; j<width; j++){
                 if(targets[i][j])
-                    batch.draw(Sokoban.tex_target, j, Sokoban.height-1-i, 1, 1);
+                    batch.draw(Sokoban.tex_target, j, height-1-i, 1, 1);
             }
         }
     }
@@ -297,8 +304,8 @@ public class GameScreen implements Screen {
 
 
     /*public void loadTestLevel(){
-        Sokoban.width = 8;//TEST
-        Sokoban.height = 8;//TEST
+        width = 8;//TEST
+        height = 8;//TEST
 
         player.setPosition(4,5);
 
@@ -342,19 +349,20 @@ public class GameScreen implements Screen {
 
     }*/
     public void loadLevelFromXSB(String xsb){
+        //xsb = xsb.replace("\r\n", "\n");//\r\n problem fix (currently fixed in backend)
         String[] xsbs = xsb.split("\n");
 
-        Sokoban.height = xsbs.length;
-        Sokoban.width = xsbs[0].length();
+        height = xsbs.length;
+        width = xsbs[0].length();
 
-        walls = new boolean[Sokoban.height][Sokoban.width];
-        floor = new boolean[Sokoban.height][Sokoban.width];
-        targets = new boolean[Sokoban.height][Sokoban.width];
+        walls = new boolean[height][width];
+        floor = new boolean[height][width];
+        targets = new boolean[height][width];
         Box box;
         char c;
 
-        for(int i=0; i<Sokoban.height; i++){
-            for(int j=0; j<Sokoban.width; j++){
+        for(int i=0; i<height; i++){
+            for(int j=0; j<width; j++){
                 c = xsbs[i].charAt(j);
 
                 walls[i][j] = c=='#';
@@ -362,11 +370,11 @@ public class GameScreen implements Screen {
                 floor[i][j] = c!='_' && c!='#';
 
                 if(c=='@'||c=='+'){
-                    player.setPosition(j,Sokoban.height-1-i);
+                    player.setPosition(j,height-1-i);
                 }
                 if(c=='$'||c=='*'){
                     box = new Box(c=='*');
-                    box.setPosition(j,Sokoban.height-1-i);
+                    box.setPosition(j,height-1-i);
                     boxes.add(box);
                 }
 
@@ -386,7 +394,7 @@ public class GameScreen implements Screen {
 
         boolean playerWallCollision = wallCollision(posX, posY, moveX, moveY);
         boolean canMoveForward = canMoveForward(posX, posY, moveX, moveY);
-        boolean isBounded = (0<=posX && posX<Sokoban.width) && (0<=posY && posY<Sokoban.height);
+        boolean isBounded = (0<=posX && posX<width) && (0<=posY && posY<height);
 
         if(!playerWallCollision && canMoveForward && isBounded){
             box = pushBox(player, moveX, moveY);
@@ -395,8 +403,8 @@ public class GameScreen implements Screen {
 
             moves.add(new Move(moveX, moveY, box));
 
-            Sokoban.moves++;
-            lblMoves.setText("Moves: "+Sokoban.moves);
+            n_moves++;
+            lblMoves.setText("Moves: "+n_moves);
         }
     }
     public Box pushBox( Player player, int moveX, int moveY){// returns true if a box was moved
@@ -449,17 +457,17 @@ public class GameScreen implements Screen {
     }
 
     public boolean isOnTarget(int posX, int posY){
-        return targets[Sokoban.height-1-posY][posX];
+        return targets[height-1-posY][posX];
     }
     public boolean wallCollision(int posX, int posY, int moveX, int moveY){
         //horizontal
         if(moveX != 0){
-            int wallX = MathUtils.clamp(posX+moveX,0, Sokoban.width-1);
-            return walls[Sokoban.height-1-posY][wallX]; //inverting y as coordinates work the way around (y goes up)
+            int wallX = MathUtils.clamp(posX+moveX,0, width-1);
+            return walls[height-1-posY][wallX]; //inverting y as coordinates work the way around (y goes up)
         }
         //vertical
         if(moveY != 0){
-            int wallY = Sokoban.height-1 -MathUtils.clamp(posY+moveY,0, Sokoban.height-1); //inverting y as coordinates work the way around (y goes up)
+            int wallY = height-1 -MathUtils.clamp(posY+moveY,0, height-1); //inverting y as coordinates work the way around (y goes up)
             return walls[wallY][posX];
         }
         return false;

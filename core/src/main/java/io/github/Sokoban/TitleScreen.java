@@ -30,18 +30,15 @@ public class TitleScreen implements Screen {
         TextButton.TextButtonStyle txtbtnStyle = new TextButton.TextButtonStyle();
         txtbtnStyle.font = Sokoban.font;
 
-        btnStart = new TextButton("START", txtbtnStyle);
+        btnStart = new TextButton("Levels", txtbtnStyle);
         btnStart.getLabel().setAlignment(Align.center);
 
         btnStart.addListener(new InputListener(){
             @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                return true;
-            }
-
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {return true;}
             @Override
             public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                game.setScreen(new GameScreen(game));
+                game.setScreen(new LevelsScreen(game));
             }
         });
         //table.add(lblTitle).center();

@@ -22,18 +22,12 @@ public class Sokoban extends Game {
     ///
 
 
-    static public int width; //temp
-    static public int height; //temp
-
-    static public int moves; //temp
-    static public int pushes; //temp
-
     @Override
     public void create() {
         gameSkin = new Skin(Gdx.files.internal("skins/uiskin.json"));
 
         font = new BitmapFont(Gdx.files.internal("skins/default.fnt"));
-        font.getData().setScale(5.0f);
+        font.getData().setScale(4.0f);
 
         ///textures
         tex_playerFront = new Texture("img/playerFront.jpg");//TODO use transparent image for player
@@ -46,7 +40,7 @@ public class Sokoban extends Game {
         tex_boxPlaced = new Texture("img/boxPlaced.png");
         ///
 
-        this.setScreen(new GameScreen(this));
+        this.setScreen(new LevelsScreen(this));
     }
 
     @Override

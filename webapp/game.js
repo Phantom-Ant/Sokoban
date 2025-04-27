@@ -16,12 +16,12 @@ const images = {
   boxPlaced: new Image()
 };
 
-images.floor.src = "assets/floor.png";
-images.wall.src = "assets/wall.png";
-images.box.src = "assets/box.png";
-images.target.src = "assets/target.png";
-images.player.src = "assets/boxPlaced.png";
-images.boxPlaced.src = "assets/boxPlaced.png";
+images.floor.src = "../assets/img/floor.png";
+images.wall.src = "../assets/img/wall.png";
+images.box.src = "../assets/img/box.png";
+images.target.src = "../assets/img/target.png";
+images.player.src = "../assets/img/boxPlaced.png";
+images.boxPlaced.src = "../assets/img/boxPlaced.png";
 
 
 function loadLevel() {
@@ -100,7 +100,7 @@ function move(dx, dy) {
 
   if (map[ny][nx] === 1) return;
   if (map[ny][nx] === 3 || map[ny][nx] === 5) {
-    if (isFree(nnx, nny)) {     
+    if (isFree(nnx, nny)) {
       map[ny][nx] = (map[ny][nx] === 5) ? 4 : 0;
       map[nny][nnx] = (map[nny][nnx] === 4) ? 5 : 3;
     } else return;
