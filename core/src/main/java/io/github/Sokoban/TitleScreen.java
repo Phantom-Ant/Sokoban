@@ -1,50 +1,92 @@
 package io.github.Sokoban;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Value;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class TitleScreen implements Screen {
-    Game game;
+    ScreenViewport viewport;
+
+    Sokoban game;
     Stage stage;
 
-    Table table;
-    TextButton btnStart;
+    Table root, tblUp, tblCenter;
+    Label lblTitle, lblUser;
+    TextButton btnStart, btnAccount;
 
-    public TitleScreen(Game aGame){
+    public TitleScreen(Sokoban aGame){
+        viewport = new ScreenViewport();
+
         game = aGame;
-        stage = new Stage(new ScreenViewport());
+        stage = new Stage(viewport);
 
-        table = new Table();
-        table.setFillParent(true);
+        lblTitle = new Label("SOKOBAN", Sokoban.skin);
+        lblTitle.setFontScale(14f);
 
-        TextButton.TextButtonStyle txtbtnStyle = new TextButton.TextButtonStyle();
-        txtbtnStyle.font = Sokoban.font;
+        String strUser = ""; //TODO use a better approach
+        if(game.user != null){
+            strUser = game.user.username;
+        }else{
+            strUser = "No user";
+        }
 
-        btnStart = new TextButton("Levels", txtbtnStyle);
-        btnStart.getLabel().setAlignment(Align.center);
+        lblUser = new Label(strUser, game.skin);
+        lblUser.setAlignment(Align.center);
 
-        btnStart.addListener(new InputListener(){
+        btnStart = new TextButton("Levels", Sokoban.skin);
+        btnAccount = new TextButton("Account", Sokoban.skin);
+
+        onChange(btnStart, () -> game.setScreen(new LevelsScreen(game)));
+        onChange(btnAccount, () -> {
+            game.setScreen(new LoginScreen(game));
+        });
+
+        root = new Table();
+        root.setFillParent(true);
+
+        tblUp = new Table();
+        tblUp.defaults().width(Value.percentWidth(0.3f, root));
+        tblUp.defaults().height(120f);
+        tblUp.defaults().expandX();
+
+        tblUp.add(lblUser).right();
+        tblUp.add(btnAccount).right();
+
+        tblCenter = new Table();
+        tblCenter.defaults().width(Value.percentWidth(0.3f, root));
+        tblCenter.defaults().height(120f);
+        tblCenter.defaults().space(20f);
+
+        tblCenter.add(btnStart).row();
+        //tblCenter.add(new TextButton("hi", Sokoban.gameSkin)).bottom().row();
+
+        root.add(tblUp).growX().row();
+        root.add(lblTitle).height(Value.percentHeight(0.3f, root)).row();
+        root.add(tblCenter).expand().center();
+
+        //stage.setDebugAll(true); //click 1:1 to see lines better
+        stage.addActor(root);
+    }
+
+    public static void onChange(Actor actor, Runnable runnable){
+        actor.addListener(new ChangeListener() {
             @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {return true;}
-            @Override
-            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                game.setScreen(new LevelsScreen(game));
+            public void changed(ChangeEvent event, Actor actor) {
+                runnable.run();
             }
         });
-        //table.add(lblTitle).center();
-        table.add(btnStart).center();
-        stage.addActor(table);
     }
+
 
     @Override
     public void show() {
@@ -52,16 +94,33 @@ public class TitleScreen implements Screen {
     }
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(Color.BLACK);
-        stage.act();
-        stage.draw();
+        logic();
+        draw();
     }
     @Override
-    public void resize(int width, int height) {}
+    public void resize(int width, int height) {
+        viewport.update(width, height, true);
+    }
     @Override
     public void pause() {}
     @Override
     public void resume() {}
+
+    public void logic(){
+        if(game.user != null){
+            lblUser.setText(game.user.username);
+        }else{
+            lblUser.setText("No user");
+        }
+    }
+
+    public void draw(){
+        ScreenUtils.clear(Color.WHITE); //TEST
+        stage.act();
+        stage.draw();
+    }
+
+
     @Override
     public void hide() {}
     @Override

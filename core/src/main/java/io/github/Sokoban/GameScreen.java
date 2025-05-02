@@ -1,6 +1,5 @@
 package io.github.Sokoban;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
@@ -8,29 +7,28 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.TouchableAction;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class GameScreen implements Screen {
-    private Game game;
+    private Sokoban game;
+    private Level level;
 
-    int width;
-    int height;
-    int n_moves; //TODO remove and use moves size instead
+    int width, height;
+    int moves; //TODO remove and use moves size instead
     int pushes;
 
 
@@ -40,20 +38,19 @@ public class GameScreen implements Screen {
     private InputMultiplexer inputMultiplexer;
 
     private SpriteBatch batch;
-    private Table table;
+    private Table root;
+    private Dialog dlgScoreResult;
     private TextButton btnUndo;
-    private Label lblMoves;
+    private Label lblMoves, lblPushes;
     private float timer;
     private Player player;
-    private boolean[][] walls;
-    private boolean[][] targets;
-    private boolean[][] floor;
+    private boolean[][] walls, targets, floor;
     private ArrayList<Box> boxes = new ArrayList<>();
 
-    private List<Move> moves = new ArrayList<>();
+    private List<Move> listMoves = new ArrayList<>();
 
     //TEST XSB (Level 1 from Thinking Rabbit)
-    /*private String testXSB = "____#####__________\n" +
+    private static String testXSB = "____#####__________\n" +
                              "____#---#__________\n" +
                              "____#$--#__________\n" +
                              "__###--$##_________\n" +
@@ -63,10 +60,14 @@ public class GameScreen implements Screen {
                              "#-$--$----------..#\n" +
                              "#####-###-#@##--..#\n" +
                              "____#-----#########\n" +
-                             "____#######________\n";*/
-
-    public GameScreen(Game aGame, Level level) {
+                             "____#######________\n";
+    public GameScreen(Sokoban aGame){
+        this(aGame, new Level(0, "", testXSB, "", ""));
+    }
+    public GameScreen(Sokoban aGame, Level level) {
         game = aGame;
+        this.level = level;
+
         batch = new SpriteBatch();
         uiViewport = new ScreenViewport(); //viewport for ui elements (buttons)
         stage = new Stage(uiViewport, batch);
@@ -76,7 +77,6 @@ public class GameScreen implements Screen {
         player.setSize(1,1);
 
         ///load level
-        //loadTestLevel();
         loadLevelFromXSB(level.data);
 
         gameViewport = new FitViewport(width, height);
@@ -86,58 +86,58 @@ public class GameScreen implements Screen {
 
         // btn
         //TODO replace with image button
-        TextButton.TextButtonStyle btnStyle = new TextButton.TextButtonStyle();
-        btnStyle.font = Sokoban.font;
         //
-        btnUndo = new TextButton("UNDO", btnStyle);
-        //
-        btnUndo.addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                return true;
-            }
-
-            @Override
-            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                btnUndo.setText("UNDO");
-                undo();
-                //game.setScreen(new TitleScreen(game));
-            }
-        });
-
-        //moves label
-        Label.LabelStyle lblStyle = new Label.LabelStyle();
-        lblStyle.font = Sokoban.font;
-
-        lblMoves = new Label("Moves: 0", lblStyle);
-
 
         //undo btn
-        table = new Table();
-        table.setFillParent(true);
-        //
-        table.align(Align.bottomRight);
-        table.add(btnUndo);// undo btn
-        //
-        stage.addActor(table);
-        //
+        btnUndo = new TextButton("UNDO", Sokoban.skin);
+        onChange(btnUndo, () ->{
+            btnUndo.setText("UNDO");
+            undo();
+        });
 
-        //moves label
-        table = new Table();
-        table.setFillParent(true);
-        //
-        table.align(Align.bottomLeft);
-        table.add(lblMoves);// moves lbl
-        //
-        stage.addActor(table);
-        //
+        lblMoves = new Label("Moves: 0", Sokoban.skin);
+        //lblMoves.setColor(Color.WHITE);//TODO fix color
 
+        lblPushes = new Label("Pushes: 0", game.skin);
+
+        /* //TODO understand how to resize window
+        dlgScoreResult = new Dialog("You Won! Score:", game.skin);
+        dlgScoreResult.setMovable(false);
+        dlgScoreResult.sizeBy();
+
+        dlgScoreResult.show(stage);
+
+        dlgScoreResult.debug();*/
+
+        //
+        root = new Table();
+        root.setFillParent(true);
+
+        //
+        root.defaults().expand().bottom().right();
+
+        //
+        root.add(lblMoves);// moves lbl
+        root.add(lblPushes);
+        root.add(btnUndo).width(200f).height(150f);// undo btn
+
+
+        stage.addActor(root);
 
         /// input processors
         inputMultiplexer = new InputMultiplexer();
         //
         inputMultiplexer.addProcessor(stage);
         inputMultiplexer.addProcessor(new GestureDetector(player));
+    }
+
+    public static void onChange(Actor actor, Runnable runnable){
+        actor.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                runnable.run();
+            }
+        });
     }
 
     @Override
@@ -182,16 +182,21 @@ public class GameScreen implements Screen {
         timer /= 100;
         testLabel.setText(""+timer);
         */
+
         if(player.isDirty()) {// if the player needs to be drawn
-            tryMoving(player);
-        }
-        if(checkWin()){
-            game.setScreen(new TitleScreen(game));//TODO change with more appropriate screen
+            if(tryMoving(player)){
+
+                if(checkWin()){
+                    game.setScreen(new TitleScreen(game));//TODO change with more appropriate screen
+                    //TODO show score dialog
+                }
+
+            }
         }
 
     }
     private void draw(){
-        ScreenUtils.clear(Color.BLACK);
+        ScreenUtils.clear(Color.WHITE);//TEST
 
         gameViewport.apply();
         batch.setProjectionMatrix(gameViewport.getCamera().combined);
@@ -224,26 +229,35 @@ public class GameScreen implements Screen {
         stage.dispose();
     }
 
+    ///
+
 
     public void undo(){
         Move move=null;
-        if(!moves.isEmpty()){
-            move = moves.remove(moves.size()-1);
+        if(!listMoves.isEmpty()){
+            move = listMoves.remove(listMoves.size()-1);
         }
         if(move != null){
             player.translate(-move.x, -move.y);
             player.face(move.x, move.y);
 
-            n_moves--;
-            lblMoves.setText("Moves: "+n_moves);
+            moves--;
+            lblMoves.setText("Moves: "+ moves);
 
             if(move.box != null){
                 move.box.translate(-move.x, -move.y);
                 move.box.setPlaced(isOnTarget((int)move.box.getX(), (int)move.box.getY()));
+                pushes--;
+                lblPushes.setText("Pushes: "+pushes);
             }
 
         }
     }
+
+
+
+    ///
+
     /*public void undoPush(){ //TODO make this
         Move move=null;
         if(!moves.isEmpty()){
@@ -261,6 +275,7 @@ public class GameScreen implements Screen {
     }*/
     //TODO to implement redo do not remove the move, just get it, use moves counter to keep the index
     ///draw methods
+
     private void drawWalls(SpriteBatch batch){
         for(int i=0; i<height; i++){
             for(int j=0; j<width; j++){
@@ -293,6 +308,9 @@ public class GameScreen implements Screen {
     }
 
 
+
+
+    ///
     boolean checkWin(){
         for(Box box : boxes ){
             if(!box.isPlaced()){
@@ -302,52 +320,6 @@ public class GameScreen implements Screen {
         return true;
     }
 
-
-    /*public void loadTestLevel(){
-        width = 8;//TEST
-        height = 8;//TEST
-
-        player.setPosition(4,5);
-
-        //walls
-        walls = new boolean[][]{{true, true, true, true, true, true, true, true},
-            {true, false, false, false, false, false, false, true},
-            {true, false, false, false, false, false, false, true},
-            {true, false, false, false, false, false, false, true},
-            {true, false, false, false, false, false, false, true},
-            {true, false, false, false, false, false, false, true},
-            {true, false, false, false, false, false, false, true},
-            {true, true, true, true, true, true, true, true}};
-        //floor
-        floor = new boolean[][]{{false, false, false, false, false, false, false, false},
-            {false, true, true, true, true, true, true, false},
-            {false, true, true, true, true, true, true, false},
-            {false, true, true, true, true, true, true, false},
-            {false, true, true, true, true, true, true, false},
-            {false, true, true, true, true, true, true, false},
-            {false, true, true, true, true, true, true, false},
-            {false, false, false, false, false, false, false, false}};
-        //targets
-        targets = new boolean[][]{{false, false, false, false, false, false, false, false},
-            {false, false, false, false, false, false, false, false},
-            {false, false, false, false, false, false, true, false},
-            {false, false, false, false, false, false, false, false},
-            {false, false, false, false, false, false, true, false},
-            {false, false, false, false, false, false, false, false},
-            {false, false, false, false, false, false, true, false},
-            {false, false, false, false, false, false, false, false}};
-        //boxes
-        Box box = new Box(false);
-        box.setPosition(5,5);
-        boxes.add(box);
-        box = new Box(false);
-        box.setPosition(5,3);
-        boxes.add(box);
-        box = new Box(false);
-        box.setPosition(5,1);
-        boxes.add(box);
-
-    }*/
     public void loadLevelFromXSB(String xsb){
         //xsb = xsb.replace("\r\n", "\n");//\r\n problem fix (currently fixed in backend)
         String[] xsbs = xsb.split("\n");
@@ -381,8 +353,10 @@ public class GameScreen implements Screen {
             }
         }
     }
+    ///
 
-    public void tryMoving(Player player){
+
+    public boolean tryMoving(Player player){ //returns whether it moved
 
         int posX = (int)player.getX();
         int posY = (int)player.getY();
@@ -401,12 +375,24 @@ public class GameScreen implements Screen {
             player.moveX(moveX);
             player.moveY(moveY);
 
-            moves.add(new Move(moveX, moveY, box));
+            listMoves.add(new Move(moveX, moveY, box));
 
-            n_moves++;
-            lblMoves.setText("Moves: "+n_moves);
+            if(box != null){
+                pushes++;
+                lblPushes.setText("Pushes: "+pushes);
+            }
+
+            moves++;
+            lblMoves.setText("Moves: "+ moves);
+
+            return true;
         }
+        return false;
     }
+
+
+
+    ///
     public Box pushBox( Player player, int moveX, int moveY){// returns true if a box was moved
         int posX = (int) player.getX();
         int posY = (int) player.getY();
@@ -472,4 +458,11 @@ public class GameScreen implements Screen {
         }
         return false;
     }
+
+
+
+    ///score methods
+
+    //TODO implement score uploading to leaderboard
+
 }

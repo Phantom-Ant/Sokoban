@@ -2,13 +2,13 @@ package io.github.Sokoban;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
+
 public class Sokoban extends Game {
-    static public Skin gameSkin;
-    static public BitmapFont font; //default font
+    static public Skin skin;
 
     /// textures
     static public Texture tex_playerFront;
@@ -21,13 +21,16 @@ public class Sokoban extends Game {
     static public Texture tex_boxPlaced;
     ///
 
+    static public String backend_url;
 
+    static public User user; //TEMP TEST
+    public Screen previousScreen; //TEMP TEST
     @Override
-    public void create() {
-        gameSkin = new Skin(Gdx.files.internal("skins/uiskin.json"));
+    public void create() {//TODO replace static variables and replace Sokoban."variable" with game."variable" in screen classes
 
-        font = new BitmapFont(Gdx.files.internal("skins/default.fnt"));
-        font.getData().setScale(4.0f);
+        skin = new Skin(Gdx.files.internal("skins/metalui/metal-ui.json"));
+
+        skin.getFont("font").getData().setScale(4.0f);
 
         ///textures
         tex_playerFront = new Texture("img/playerFront.jpg");//TODO use transparent image for player
@@ -40,8 +43,17 @@ public class Sokoban extends Game {
         tex_boxPlaced = new Texture("img/boxPlaced.png");
         ///
 
-        this.setScreen(new LevelsScreen(this));
+        backend_url = "http://10.0.2.2/PHP/Sokoban/";
+
+        this.setScreen(new TitleScreen(this));
     }
+
+    @Override
+    public void setScreen(Screen screen) {
+        previousScreen = getScreen();
+        super.setScreen(screen);
+    }
+
 
     @Override
     public void render() {

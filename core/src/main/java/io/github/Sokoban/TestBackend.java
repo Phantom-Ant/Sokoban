@@ -1,12 +1,10 @@
 package io.github.Sokoban;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Net;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.net.HttpRequestBuilder;
-import com.badlogic.gdx.net.HttpRequestHeader;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -21,14 +19,14 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class TestBackend implements Screen {
-    Game game;
+    Sokoban game;
     Stage stage;
 
     Table table;
     TextButton btnGet;
     TextButton btnPost;
 
-    public TestBackend(Game aGame){
+    public TestBackend(Sokoban aGame){
         game = aGame;
         stage = new Stage(new ScreenViewport());
 
@@ -36,7 +34,7 @@ public class TestBackend implements Screen {
         table.setFillParent(true);
 
         TextButton.TextButtonStyle txtbtnStyle = new TextButton.TextButtonStyle();
-        txtbtnStyle.font = Sokoban.font;
+        txtbtnStyle.font = Sokoban.skin.getFont("font-export.fnt");
 
         btnGet = new TextButton("Get", txtbtnStyle);
 
@@ -84,9 +82,7 @@ public class TestBackend implements Screen {
                     }
 
                     @Override
-                    public void cancelled() {
-
-                    }
+                    public void cancelled() {}
                 });
             }
         });
