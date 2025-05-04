@@ -31,10 +31,10 @@ public class LevelsScreen implements Screen {
         game = aGame;
         stage = new Stage(new ScreenViewport());
 
-        root = new Table(Sokoban.skin);
+        root = new Table(game.skin);
         root.setFillParent(true);
 
-        tblList = new Table(Sokoban.skin);
+        tblList = new Table(game.skin);
         tblList.setFillParent(true);
 
         srlPane = new ScrollPane(tblList);
@@ -42,7 +42,7 @@ public class LevelsScreen implements Screen {
         root.add(srlPane).grow();
 
         HttpRequestBuilder requestBuilder = new HttpRequestBuilder();
-        Net.HttpRequest httpRequest = requestBuilder.newRequest().method(Net.HttpMethods.GET).url(Sokoban.backend_url).build();//backend url
+        Net.HttpRequest httpRequest = requestBuilder.newRequest().method(Net.HttpMethods.GET).url(game.backend_url).build();//backend url
         Gdx.net.sendHttpRequest(httpRequest, new Net.HttpResponseListener() {
             @Override
             public void handleHttpResponse(Net.HttpResponse httpResponse) {
@@ -57,9 +57,9 @@ public class LevelsScreen implements Screen {
                 while(entry != null){
                     Level level = json.readValue(Level.class, entry);
 
-                    Gdx.app.log("test", level.name);
+                    //Gdx.app.log("test", level.name);
 
-                    TextButton btnLevel = new TextButton(level.name+"\npublisher: "+level.publisher+"\npublish date: "+ level.publish_date, Sokoban.skin);
+                    TextButton btnLevel = new TextButton(level.name+"\npublisher: "+level.publisher+"\npublish date: "+ level.publish_date, game.skin);
                     btnLevel.getLabel().setAlignment(Align.center);
 
                     onChange(btnLevel, () -> game.setScreen(new GameScreen(game, level)) );

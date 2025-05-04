@@ -89,13 +89,13 @@ public class GameScreen implements Screen {
         //
 
         //undo btn
-        btnUndo = new TextButton("UNDO", Sokoban.skin);
+        btnUndo = new TextButton("UNDO", game.skin);
         onChange(btnUndo, () ->{
             btnUndo.setText("UNDO");
             undo();
         });
 
-        lblMoves = new Label("Moves: 0", Sokoban.skin);
+        lblMoves = new Label("Moves: 0", game.skin);
         //lblMoves.setColor(Color.WHITE);//TODO fix color
 
         lblPushes = new Label("Pushes: 0", game.skin);

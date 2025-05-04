@@ -30,7 +30,7 @@ public class TitleScreen implements Screen {
         game = aGame;
         stage = new Stage(viewport);
 
-        lblTitle = new Label("SOKOBAN", Sokoban.skin);
+        lblTitle = new Label("SOKOBAN", game.skin);
         lblTitle.setFontScale(14f);
 
         String strUser = ""; //TODO use a better approach
@@ -43,8 +43,8 @@ public class TitleScreen implements Screen {
         lblUser = new Label(strUser, game.skin);
         lblUser.setAlignment(Align.center);
 
-        btnStart = new TextButton("Levels", Sokoban.skin);
-        btnAccount = new TextButton("Account", Sokoban.skin);
+        btnStart = new TextButton("Levels", game.skin);
+        btnAccount = new TextButton("Account", game.skin);
 
         onChange(btnStart, () -> game.setScreen(new LevelsScreen(game)));
         onChange(btnAccount, () -> {
@@ -68,6 +68,7 @@ public class TitleScreen implements Screen {
         tblCenter.defaults().space(20f);
 
         tblCenter.add(btnStart).row();
+
         //tblCenter.add(new TextButton("hi", Sokoban.gameSkin)).bottom().row();
 
         root.add(tblUp).growX().row();

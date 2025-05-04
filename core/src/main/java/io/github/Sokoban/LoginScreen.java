@@ -34,17 +34,17 @@ public class LoginScreen implements Screen {
         game = aGame;
         stage = new Stage(viewport);
         //
-        tfdName = new TextField("", Sokoban.skin);
+        tfdName = new TextField("", game.skin);
         tfdName.setMessageText("Name");
 
-        tfdEmail = new TextField("", Sokoban.skin);
+        tfdEmail = new TextField("", game.skin);
         tfdEmail.setMessageText("Email");
 
-        tfdPassword = new TextField("", Sokoban.skin);
+        tfdPassword = new TextField("", game.skin);
         tfdPassword.setMessageText("Password");
 
 
-        btnLogin = new TextButton("Login", Sokoban.skin);
+        btnLogin = new TextButton("Login", game.skin);
         onChange(btnLogin, this::login);
 
         //
@@ -102,7 +102,7 @@ public class LoginScreen implements Screen {
 
     public void login(){
         HttpRequestBuilder requestBuilder = new HttpRequestBuilder();
-        Net.HttpRequest httpRequest = requestBuilder.newRequest().method(Net.HttpMethods.POST).header("Content-Type", "application/json").url("http://10.0.2.2/PHP/Sokoban/").build();
+        Net.HttpRequest httpRequest = requestBuilder.newRequest().method(Net.HttpMethods.POST).header("Content-Type", "application/json").url(game.backend_url).build();
 
         //User user = new User(tfdName.getText(), tfdEmail.getText(), tfdPassword.getText());
 
@@ -124,7 +124,7 @@ public class LoginScreen implements Screen {
                 //Gdx.app.log("Error", result);
 
                 if(result.equals("Login successful")){
-                    Sokoban.user = user;
+                    game.user = user;
                 }
                 game.setScreen(game.previousScreen);
 
