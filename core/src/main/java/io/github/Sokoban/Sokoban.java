@@ -32,6 +32,8 @@ public class Sokoban extends Game {
 
         skin.getFont("font").getData().setScale(4.0f);
 
+
+
         ///textures
         tex_playerFront = new Texture("img/playerFront.jpg");//TODO use transparent image for player
         tex_playerBack = new Texture("img/playerBack.jpg");//TODO use transparent image for player

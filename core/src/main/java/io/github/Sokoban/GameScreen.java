@@ -9,12 +9,12 @@ import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.actions.TouchableAction;
-import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -38,10 +38,10 @@ public class GameScreen implements Screen {
     private InputMultiplexer inputMultiplexer;
 
     private SpriteBatch batch;
-    private Table root;
-    private Dialog dlgScoreResult;
+    private Table winRoot, root;
+    private Window winScore;
     private TextButton btnUndo;
-    private Label lblMoves, lblPushes;
+    private Label lblMoves, lblPushes, winMoves, winPushes;;
     private float timer;
     private Player player;
     private boolean[][] walls, targets, floor;
@@ -51,16 +51,16 @@ public class GameScreen implements Screen {
 
     //TEST XSB (Level 1 from Thinking Rabbit)
     private static String testXSB = "____#####__________\n" +
-                             "____#---#__________\n" +
-                             "____#$--#__________\n" +
-                             "__###--$##_________\n" +
-                             "__#--$-$-#_________\n" +
-                             "###-#-##-#___######\n" +
-                             "#---#-##-#####--..#\n" +
-                             "#-$--$----------..#\n" +
-                             "#####-###-#@##--..#\n" +
-                             "____#-----#########\n" +
-                             "____#######________\n";
+                                    "____#---#__________\n" +
+                                    "____#$--#__________\n" +
+                                    "__###--$##_________\n" +
+                                    "__#--$-$-#_________\n" +
+                                    "###-#-##-#___######\n" +
+                                    "#---#-##-#####--..#\n" +
+                                    "#-$--$----------..#\n" +
+                                    "#####-###-#@##--..#\n" +
+                                    "____#-----#########\n" +
+                                    "____#######________\n";
     public GameScreen(Sokoban aGame){
         this(aGame, new Level(0, "", testXSB, "", ""));
     }
@@ -100,30 +100,43 @@ public class GameScreen implements Screen {
 
         lblPushes = new Label("Pushes: 0", game.skin);
 
-        /* //TODO understand how to resize window
-        dlgScoreResult = new Dialog("You Won! Score:", game.skin);
-        dlgScoreResult.setMovable(false);
-        dlgScoreResult.sizeBy();
+        //TODO problem with background title bar lies on assets and ninepatch
+        ///Score Window
 
-        dlgScoreResult.show(stage);
+        winMoves = new Label("Moves: 0", game.skin);
+        winPushes = new Label("Pushes: 0", game.skin);
 
-        dlgScoreResult.debug();*/
+        winScore = new Window("",game.skin);
+        winScore.setMovable(false);
 
-        //
+        winScore.add(new Label("You won!", game.skin)).align(Align.center).height(60f).expandX().top().colspan(2).row();
+        winScore.add(winMoves).expand();
+        winScore.add(winPushes).expand();
+
+        winScore.setVisible(false);
+
+        ///
+
         root = new Table();
         root.setFillParent(true);
-
         //
         root.defaults().expand().bottom().right();
-
         //
         root.add(lblMoves);// moves lbl
         root.add(lblPushes);
         root.add(btnUndo).width(200f).height(150f);// undo btn
 
 
-        stage.addActor(root);
+        winRoot = new Table();
+        winRoot.setFillParent(true);
+        //
+        winRoot.add(winScore).width(750f).height(400f); //TODO change with dynamic size
 
+
+        stage.addActor(root);
+        stage.addActor(winRoot);
+
+        //stage.setDebugAll(true);
         /// input processors
         inputMultiplexer = new InputMultiplexer();
         //
@@ -187,8 +200,11 @@ public class GameScreen implements Screen {
             if(tryMoving(player)){
 
                 if(checkWin()){
-                    game.setScreen(new TitleScreen(game));//TODO change with more appropriate screen
+                    //game.setScreen(new TitleScreen(game));//TODO change with more appropriate screen
                     //TODO show score dialog
+                    winScore.setVisible(true);
+                    winMoves.setText(lblMoves.getText());
+                    winPushes.setText(lblPushes.getText());
                 }
 
             }
