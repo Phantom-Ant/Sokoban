@@ -25,6 +25,9 @@ public class Sokoban extends Game {
 
     public User user; //TEMP TEST
     public Screen previousScreen; //TEMP TEST
+
+    public Screen title_screen;
+
     @Override
     public void create() {//TODO replace static texture variables in player and box
 
@@ -45,8 +48,8 @@ public class Sokoban extends Game {
         ///
 
         backend_url = "http://10.0.2.2/PHP/Sokoban/";
-
-        this.setScreen(new TitleScreen(this));
+        title_screen = new TitleScreen(this);
+        this.setScreen(title_screen);
     }
 
     @Override

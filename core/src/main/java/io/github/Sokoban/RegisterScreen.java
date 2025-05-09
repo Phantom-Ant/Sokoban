@@ -17,7 +17,7 @@ import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
-public class LoginScreen implements Screen {
+public class RegisterScreen implements Screen {
     ScreenViewport viewport;
 
     Sokoban game;
@@ -26,9 +26,9 @@ public class LoginScreen implements Screen {
     Table root;
 
     TextField tfdName, tfdEmail, tfdPassword;
-    TextButton btnLogin, btnRegister;
+    TextButton btnRegister, btnLogin;
 
-    public LoginScreen(Sokoban aGame){
+    public RegisterScreen(Sokoban aGame){
         viewport = new ScreenViewport();
 
         game = aGame;
@@ -44,26 +44,26 @@ public class LoginScreen implements Screen {
         tfdPassword.setMessageText("Password");
 
 
-        btnLogin = new TextButton("Login", game.skin);
-        onChange(btnLogin, this::login);
-
         btnRegister = new TextButton("Register", game.skin);
-        onChange(btnRegister, ()-> game.setScreen(new RegisterScreen(game)));
+        onChange(btnRegister, this::login);
+
+        btnLogin = new TextButton("Login", game.skin);
+        onChange(btnLogin, () -> game.setScreen(game.previousScreen) );
         //
         root = new Table();
         root.setFillParent(true);
 
         root.defaults().width(Value.percentWidth(0.3f, root));
         root.defaults().height(120f);
-        root.defaults().space(20f);;
+        root.defaults().space(20f);
         root.defaults().expandX();
 
         root.add(tfdName).row();
         root.add(tfdEmail).row();
         root.add(tfdPassword).row();
 
-        root.add(btnLogin).row();
-        root.add(btnRegister).spaceTop(40f);
+        root.add(btnRegister).row();
+        root.add(btnLogin).spaceTop(40f);
 
         //stage.setDebugAll(true); //click 1:1 to see lines better
         stage.addActor(root);
@@ -106,12 +106,9 @@ public class LoginScreen implements Screen {
 
     public void login(){
         HttpRequestBuilder requestBuilder = new HttpRequestBuilder();
-        Net.HttpRequest httpRequest = requestBuilder.newRequest().method(Net.HttpMethods.POST).header("Content-Type", "application/json").url(game.backend_url+"login.php").build();
+        Net.HttpRequest httpRequest = requestBuilder.newRequest().method(Net.HttpMethods.POST).header("Content-Type", "application/json").url(game.backend_url+"register.php").build();
 
-        //User user = new User(tfdName.getText(), tfdEmail.getText(), tfdPassword.getText());
-
-        //TEST user
-        User user = new User("thinking_rabbit", "thinkingrabbit@gmail.com", "pass");
+        User user = new User(tfdName.getText(), tfdEmail.getText(), tfdPassword.getText());
 
         Json json = new Json();
         json.setOutputType(JsonWriter.OutputType.json);
@@ -125,14 +122,14 @@ public class LoginScreen implements Screen {
 
                 String result = httpResponse.getResultAsString().trim(); //fix final \n
 
-                //Gdx.app.log("Error", result);
+                Gdx.app.log("Error", result+httpResponse.getStatus().getStatusCode());
 
-                if(result.equals("Login successful")){
+                if(result.equals("Register successful")){
                     game.user = user;
                 }
                 game.setScreen(game.title_screen);
 
-                //TODO print error message on screen when login fails
+                //TODO print error message on screen when register fails
             }
 
             @Override

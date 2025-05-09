@@ -42,7 +42,7 @@ public class LevelsScreen implements Screen {
         root.add(srlPane).grow();
 
         HttpRequestBuilder requestBuilder = new HttpRequestBuilder();
-        Net.HttpRequest httpRequest = requestBuilder.newRequest().method(Net.HttpMethods.GET).url(game.backend_url).build();//backend url
+        Net.HttpRequest httpRequest = requestBuilder.newRequest().method(Net.HttpMethods.GET).url(game.backend_url+"levels.php").build();//backend url
         Gdx.net.sendHttpRequest(httpRequest, new Net.HttpResponseListener() {
             @Override
             public void handleHttpResponse(Net.HttpResponse httpResponse) {

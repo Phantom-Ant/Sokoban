@@ -30,7 +30,8 @@ public class TitleScreen implements Screen {
         game = aGame;
         stage = new Stage(viewport);
 
-        lblTitle = new Label("SOKOBAN", game.skin);
+        lblTitle = new Label("SOKOBAN", game.
+            skin);
         lblTitle.setFontScale(14f);
 
         String strUser = ""; //TODO use a better approach
