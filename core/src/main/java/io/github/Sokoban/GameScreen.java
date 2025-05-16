@@ -2,19 +2,24 @@ package io.github.Sokoban;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.Net;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.net.HttpRequestBuilder;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -23,13 +28,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
-public class GameScreen implements Screen {
+public class GameScreen implements Screen { //TODO add restart and home button
     private Sokoban game;
     private Level level;
 
     int width, height;
     int moves; //TODO remove and use moves size instead
     int pushes;
+    boolean won;
+    private float timer;
+    private int millis;
 
 
     private Stage stage;
@@ -40,9 +48,8 @@ public class GameScreen implements Screen {
     private SpriteBatch batch;
     private Table winRoot, root;
     private Window winScore;
-    private TextButton btnUndo;
-    private Label lblMoves, lblPushes, winMoves, winPushes;;
-    private float timer;
+    private TextButton btnUndo, btnHome, btnLevels, btnLeaderboard, btnPublishScore;
+    private Label lblMoves, lblPushes, lblTimer, winMoves, winPushes, winTimer;
     private Player player;
     private boolean[][] walls, targets, floor;
     private ArrayList<Box> boxes = new ArrayList<>();
@@ -50,7 +57,7 @@ public class GameScreen implements Screen {
     private List<Move> listMoves = new ArrayList<>();
 
     //TEST XSB (Level 1 from Thinking Rabbit)
-    private static String testXSB = "____#####__________\n" +
+    private static String testXSB2 = "____#####__________\n" +
                                     "____#---#__________\n" +
                                     "____#$--#__________\n" +
                                     "__###--$##_________\n" +
@@ -61,6 +68,9 @@ public class GameScreen implements Screen {
                                     "#####-###-#@##--..#\n" +
                                     "____#-----#########\n" +
                                     "____#######________\n";
+    private static String testXSB = "#####\n" +
+                                    "#@$.#\n" +
+                                    "#####\n";
     public GameScreen(Sokoban aGame){
         this(aGame, new Level(0, "", testXSB, "", ""));
     }
@@ -81,8 +91,7 @@ public class GameScreen implements Screen {
 
         gameViewport = new FitViewport(width, height);
 
-        ///ui objects //
-        // TODO implement timer, pushes labels
+        ///ui objects///
 
         // btn
         //TODO replace with image button
@@ -95,23 +104,53 @@ public class GameScreen implements Screen {
             undo();
         });
 
+        btnHome = new TextButton("Title Screen", game.skin);
+        onChange(btnHome, ()-> game.setScreen(game.title_screen));
+
+        btnLevels = new TextButton("Levels", game.skin);
+        onChange(btnLevels, ()-> game.setScreen(new LevelsScreen(game)));
+
+        btnLeaderboard = new TextButton("Leaderboard", game.skin);
+        onChange(btnLeaderboard, ()-> game.setScreen(new LeaderBoardScreen(game, level)));
+
+        btnPublishScore = new TextButton("Publish score", game.skin);
+        if(game.user != null){
+            onChange(btnPublishScore, this::uploadScore);
+        }else{
+            //TODO improve ui and set disabled
+            btnPublishScore.setDisabled(true);
+            btnPublishScore.setTouchable(Touchable.disabled);
+            btnPublishScore.setText("Login to publish score");
+        }
+
+        //
+
         lblMoves = new Label("Moves: 0", game.skin);
         //lblMoves.setColor(Color.WHITE);//TODO fix color
 
         lblPushes = new Label("Pushes: 0", game.skin);
+
+        lblTimer = new Label("Timer: 0", game.skin);
 
         //TODO problem with background title bar lies on assets and ninepatch
         ///Score Window
 
         winMoves = new Label("Moves: 0", game.skin);
         winPushes = new Label("Pushes: 0", game.skin);
+        winTimer = new Label("Timer: 0", game.skin);
 
         winScore = new Window("",game.skin);
         winScore.setMovable(false);
 
-        winScore.add(new Label("You won!", game.skin)).align(Align.center).height(60f).expandX().top().colspan(2).row();
+        winScore.add(new Label("You won!", game.skin)).align(Align.center).height(60f).expandX().top().colspan(3).row();
         winScore.add(winMoves).expand();
         winScore.add(winPushes).expand();
+        winScore.add(winTimer).expand().row();
+
+        winScore.add(btnHome).height(120f).growX();
+        winScore.add(btnLevels).height(120f).growX();
+        winScore.add(btnLeaderboard).height(120f).growX().row();
+        winScore.add(btnPublishScore).height(120f).colspan(3).growX();
 
         winScore.setVisible(false);
 
@@ -124,14 +163,14 @@ public class GameScreen implements Screen {
         //
         root.add(lblMoves);// moves lbl
         root.add(lblPushes);
+        root.add(lblTimer);
         root.add(btnUndo).width(200f).height(150f);// undo btn
 
 
         winRoot = new Table();
         winRoot.setFillParent(true);
         //
-        winRoot.add(winScore).width(750f).height(400f); //TODO change with dynamic size
-
+        winRoot.add(winScore).width(1000f).height(520f).row(); //TODO change with dynamic size
 
         stage.addActor(root);
         stage.addActor(winRoot);
@@ -187,27 +226,27 @@ public class GameScreen implements Screen {
     }
     private void logic(){
         //timer test
-        /*
+
         float delta = Gdx.graphics.getDeltaTime();
-        timer += delta;
-        timer *= 100;
-        timer = (int) timer;
-        timer /= 100;
-        testLabel.setText(""+timer);
-        */
 
-        if(player.isDirty()) {// if the player needs to be drawn
-            if(tryMoving(player)){
+        if(!won){
+            //TODO fix timer stuff
+            timer += delta;
+            millis = (int) (timer*1000);
+            lblTimer.setText("Timer: "+ millis);
+            //TODO show timer in (hh):mm:ss
 
-                if(checkWin()){
-                    //game.setScreen(new TitleScreen(game));//TODO change with more appropriate screen
-                    //TODO show score dialog
-                    winScore.setVisible(true);
-                    winMoves.setText(lblMoves.getText());
-                    winPushes.setText(lblPushes.getText());
-                }
-
+            if(player.isDirty() && tryMoving(player)) {// if the player needs to be drawn
+                won = checkWin();
             }
+        }else{
+            //game.setScreen(new TitleScreen(game));//TODO change with more appropriate screen
+            //TODO show score dialog
+            winScore.setVisible(true);
+            //TODO show timer with milliseconds also
+            winMoves.setText(lblMoves.getText());
+            winPushes.setText(lblPushes.getText());
+            winTimer.setText(lblTimer.getText());
         }
 
     }
@@ -480,5 +519,43 @@ public class GameScreen implements Screen {
     ///score methods
 
     //TODO implement score uploading to leaderboard
+    private void uploadScore(){
+        //TODO fix set disabled over here too
+        btnPublishScore.setDisabled(true);
+        btnPublishScore.setTouchable(Touchable.disabled);
 
+        HttpRequestBuilder requestBuilder = new HttpRequestBuilder();
+        Net.HttpRequest httpRequest = requestBuilder.newRequest().method(Net.HttpMethods.POST).header("Content-Type", "application/json").url(game.backend_url+"publish_score.php").build();
+
+        Score score = new Score(game.user.username, level.id, millis, moves, pushes);
+
+        Json json = new Json();
+        json.setOutputType(JsonWriter.OutputType.json);
+
+        String jsonStr = json.toJson(score);
+
+        httpRequest.setContent(jsonStr);
+        Gdx.net.sendHttpRequest(httpRequest, new Net.HttpResponseListener() {
+            @Override
+            public void handleHttpResponse(Net.HttpResponse httpResponse){
+
+                String result = httpResponse.getResultAsString().trim(); //fix final \n
+
+                //Gdx.app.log("Error", httpResponse.getStatus().getStatusCode()+" "+result);
+
+                btnPublishScore.setText(result);
+
+            }
+
+            @Override
+            public void failed(Throwable t){
+                Gdx.app.log("Error", t.getMessage());
+            }
+
+            @Override
+            public void cancelled() {
+
+            }
+        });
+    }
 }

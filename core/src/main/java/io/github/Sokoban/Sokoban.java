@@ -40,6 +40,7 @@ public class Sokoban extends Game {
         tex_playerFront = new Texture("img/playerFront.jpg");//TODO use transparent image for player
         tex_playerBack = new Texture("img/playerBack.jpg");//TODO use transparent image for player
         tex_playerSide = new Texture("img/playerSide.jpg");//TODO use transparent image for player
+        //TODO use playerRight and playerLeft instead of playerSide
         tex_wall = new Texture("img/wall.png"); //TODO use better image for walls
         tex_floor = new Texture("img/floor.png");
         tex_target = new Texture("img/target.png");//TODO use better image for targets

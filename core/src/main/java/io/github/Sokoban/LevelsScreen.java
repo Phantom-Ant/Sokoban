@@ -26,6 +26,7 @@ public class LevelsScreen implements Screen {
     Table tblList;
     Table root;
     ScrollPane srlPane;
+    TextButton btnLevel, btnLeaderBoard;//TODO Replace btnLeaderBoard with icon
 
     public LevelsScreen(Sokoban aGame){//TODO rework ui, add leaderboard button for each level
         game = aGame;
@@ -59,11 +60,16 @@ public class LevelsScreen implements Screen {
 
                     //Gdx.app.log("test", level.name);
 
-                    TextButton btnLevel = new TextButton(level.name+"\npublisher: "+level.publisher+"\npublish date: "+ level.publish_date, game.skin);
+                    btnLevel = new TextButton(level.name+"\npublisher: "+level.publisher+"\npublish date: "+ level.publish_date, game.skin);
                     btnLevel.getLabel().setAlignment(Align.center);
 
+                    btnLeaderBoard = new TextButton("LeaderBoard", game.skin);
+
                     onChange(btnLevel, () -> game.setScreen(new GameScreen(game, level)) );
-                    tblList.add(btnLevel).growX().row();
+                    onChange(btnLeaderBoard, ()-> game.setScreen(new LeaderBoardScreen(game, level)));
+
+                    tblList.add(btnLevel).growX();
+                    tblList.add(btnLeaderBoard).fillY().row();
 
                     entry = entry.next;
                 }

@@ -45,7 +45,7 @@ public class RegisterScreen implements Screen {
 
 
         btnRegister = new TextButton("Register", game.skin);
-        onChange(btnRegister, this::login);
+        onChange(btnRegister, this::register);
 
         btnLogin = new TextButton("Login", game.skin);
         onChange(btnLogin, () -> game.setScreen(game.previousScreen) );
@@ -104,7 +104,7 @@ public class RegisterScreen implements Screen {
         stage.dispose();
     }
 
-    public void login(){
+    public void register(){
         HttpRequestBuilder requestBuilder = new HttpRequestBuilder();
         Net.HttpRequest httpRequest = requestBuilder.newRequest().method(Net.HttpMethods.POST).header("Content-Type", "application/json").url(game.backend_url+"register.php").build();
 

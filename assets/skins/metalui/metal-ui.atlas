@@ -30,6 +30,15 @@ button-pressed
   orig: 82, 26
   offset: 0, 0
   index: -1
+button-disabled
+  rotate: false
+  xy: 1, 435
+  size: 82, 26
+  split: 1, 1, 1, 1
+  pad: 3, 3, 3, 3
+  orig: 82, 26
+  offset: 0, 0
+  index: -1
 checkbox
   rotate: false
   xy: 23, 345
