@@ -2,6 +2,7 @@ package io.github.Sokoban;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -50,6 +51,15 @@ public class Sokoban extends Game {
 
         backend_url = "http://10.0.2.2/PHP/Sokoban/";
         title_screen = new TitleScreen(this);
+
+        //get user from preference
+        Preferences account = Gdx.app.getPreferences("Account");
+        if(account.contains("username") && account.contains("email") && account.contains("password")){
+            user = new User(account.getString("username"), account.getString("email"), account.getString("password"));
+        }else{
+            user = null;
+        }
+
         this.setScreen(title_screen);
     }
 

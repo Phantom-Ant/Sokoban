@@ -2,6 +2,7 @@ package io.github.Sokoban;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Net;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.net.HttpRequestBuilder;
@@ -126,6 +127,11 @@ public class RegisterScreen implements Screen {
 
                 if(result.equals("Register successful")){
                     game.user = user;
+                    Preferences account = Gdx.app.getPreferences("Account");
+                    account.putString("username", user.username);
+                    account.putString("email", user.email);
+                    account.putString("password", user.password);
+                    account.flush();
                 }
                 game.setScreen(game.title_screen);
 
