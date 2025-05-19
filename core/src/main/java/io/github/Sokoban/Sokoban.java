@@ -6,6 +6,7 @@ import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.kotcrab.vis.ui.VisUI;
 
 
 public class Sokoban extends Game {
@@ -32,9 +33,11 @@ public class Sokoban extends Game {
     @Override
     public void create() {//TODO replace static texture variables in player and box
 
+        VisUI.load();
         skin = new Skin(Gdx.files.internal("skins/metalui/metal-ui.json"));
 
-        skin.getFont("font").getData().setScale(4.0f);
+
+        skin.getFont("font").getData().setScale(3.0f);
 
 
         ///textures
@@ -49,12 +52,15 @@ public class Sokoban extends Game {
         tex_boxPlaced = new Texture("img/boxPlaced.png");
         ///
 
-        backend_url = "http://10.0.2.2/PHP/Sokoban/";
+        //backend_url = "http://10.0.2.2/PHP/Sokoban/";
+        backend_url = "https://52.7.182.242/Sokoban/backend/";
+
         title_screen = new TitleScreen(this);
 
         //get user from preference
         Preferences account = Gdx.app.getPreferences("Account");
         if(account.contains("username") && account.contains("email") && account.contains("password")){
+            //TODO check first if the database has same user (login)
             user = new User(account.getString("username"), account.getString("email"), account.getString("password"));
         }else{
             user = null;

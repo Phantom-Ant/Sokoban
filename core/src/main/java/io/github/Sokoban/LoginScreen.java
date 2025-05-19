@@ -109,10 +109,11 @@ public class LoginScreen implements Screen {
         HttpRequestBuilder requestBuilder = new HttpRequestBuilder();
         Net.HttpRequest httpRequest = requestBuilder.newRequest().method(Net.HttpMethods.POST).header("Content-Type", "application/json").url(game.backend_url+"login.php").build();
 
-        //User user = new User(tfdName.getText(), tfdEmail.getText(), tfdPassword.getText());
+        //TODO make regex validation
+        User user = new User(tfdName.getText(), tfdEmail.getText(), tfdPassword.getText());
 
         //TEST user
-        User user = new User("thinking_rabbit", "thinkingrabbit@gmail.com", "pass");
+        //User user = new User("thinking_rabbit", "thinkingrabbit@gmail.com", "pass");
 
         Json json = new Json();
         json.setOutputType(JsonWriter.OutputType.json);
