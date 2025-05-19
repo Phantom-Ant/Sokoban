@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Login/Join</title>
+  <style>
+    body {
+      background-image: url('https://play-lh.googleusercontent.com/IVTpt37tHBQ5u7SOzD4y7OCipsq2xRkDv1h-qYKO_Mab_MLFsPFOXpuVJpjfATyMDRQ=w526-h296-rw');
+      background-size: cover;
+      background-position: center;
+      margin: 0;
+      height: 100vh;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .button-container {
+      margin-top: -60px; /* 🔼 Sposta TUTTI i pulsanti più in alto */
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 18px;
+      margin: 10px;
+      cursor: pointer;
+      background-color: rgba(255, 255, 255, 0.8);
+      border: none;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s, background-color 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      background-color: rgba(255, 255, 255, 1);
+    }
+  </style>
+</head>
+<body>
+  <div class="button-container">
+    <button onclick="window.location.href='login.html'">Login</button>
+    <button onclick="window.location.href='join.html'">Join</button>
+    <button onclick="window.location.href='../levels/levels.html'">Free Admission</button>
+  </div>
+</body>
+</html>
