@@ -1,48 +1,44 @@
-
 document.addEventListener("DOMContentLoaded", () => {
   fetch('http://localhost/PHP/Sokoban/levels.php')
     .then(res => res.json())
     .then(data => {
-      const table = document.getElementById("livelli");
-      const colonne = 4;
-      let tr;
-
-      data.forEach((livello, i) => {
-        if (i % colonne === 0) {
-          tr = document.createElement("tr");
-          table.appendChild(tr);
-        }
-
-        const td = document.createElement("td");
-        td.style.padding = '10px';  // Aggiungi spazio tra le celle
-
-        const button = document.createElement("button");
-        button.type = "button";
-        button.classList.add("level-button");
-
-        button.innerHTML = `
-          <strong>ID:</strong> ${livello.id}<br>
-          <strong>Nome:</strong> ${livello.name}<br>
-          <strong>Dim:</strong> ${livello.publish_date}<br>
-          <strong>Autore:</strong> ${livello.publisher}
+      const container = document.getElementById("levels-container");
+      
+      data.forEach(livello => {
+        const col = document.createElement("div");
+        col.className = "col-md-3 col-sm-6 mb-4";
+        
+        const card = document.createElement("div");
+        card.className = "level-card";
+        
+        // Estrai la dimensione della mappa
+        const rows = livello.data.split('\\n').length;
+        const cols = livello.data.split('\\n')[0].length;
+        
+        card.innerHTML = `
+          <div class="level-title">${livello.name}</div>
+          <div class="level-details mt-2">
+            <div>ID: ${livello.id}</div>
+            <div>Dimensione: ${cols}×${rows}</div>
+            <div>Autore: ${livello.publisher}</div>
+            <div>Data: ${new Date(livello.publish_date).toLocaleDateString()}</div>
+          </div>
         `;
-
+        
         const levelData = encodeURIComponent(livello.data);
-
-        button.addEventListener("click", () => {
+        
+        card.addEventListener("click", () => {
           window.location.href = `../game/game.html?levelData=${levelData}&level=${livello.id}`;
         });
-
-        td.appendChild(button);
-        tr.appendChild(td);
+        
+        col.appendChild(card);
+        container.appendChild(col);
       });
     })
     .catch(err => {
-      // Mostra errore in un'area dedicata senza sovrascrivere il corpo della pagina
       const errorDiv = document.getElementById("error-message");
-      errorDiv.textContent = "Errore nel caricamento dei livelli.";
-
-      if (errorDiv) errorDiv.textContent = "Errore nel caricamento dei livelli.";
+      errorDiv.classList.remove("d-none");
+      errorDiv.textContent = "Errore nel caricamento dei livelli. Riprova più tardi.";
       console.error(err);
     });
 });

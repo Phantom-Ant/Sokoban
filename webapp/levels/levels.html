@@ -3,11 +3,62 @@
 <head>
   <meta charset="UTF-8">
   <title>Livelli Sokoban</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: radial-gradient(circle, #1a1a2e, #16213e);
+      font-family: 'Press Start 2P', cursive;
+      color: #fff;
+      padding: 20px;
+    }
+    .level-card {
+      background: rgba(0, 0, 0, 0.7);
+      border: 2px solid #4cc9f0;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 10px;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+    .level-card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 15px #4cc9f0;
+    }
+    .level-title {
+      color: #f72585;
+      font-size: 0.9rem;
+    }
+    .level-details {
+      font-size: 0.7rem;
+      color: #a8dadc;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #4cc9f0;
+    }
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+    }
+  </style>
 </head>
 <body>
-  <h2>Lista livelli</h2>
-  <div id="error-message" style="color: red;"></div>
-  <table id="livelli" border="1"></table>
-  <script src="levels.js" defer></script>
+  <button class="btn btn-outline-light back-btn" onclick="location.href='../menu/sokoban.html'">← Indietro</button>
+  
+  <div class="header">
+    <h1>🎮 Scegli un Livello</h1>
+    <p class="level-details">Clicca su un livello per giocare</p>
+  </div>
+  
+  <div id="error-message" class="alert alert-danger d-none"></div>
+  
+  <div class="container">
+    <div class="row" id="levels-container"></div>
+  </div>
+
+  <script src="levels.js"></script>
 </body>
 </html>
