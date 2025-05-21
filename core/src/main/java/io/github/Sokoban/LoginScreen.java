@@ -26,7 +26,7 @@ public class LoginScreen implements Screen {
 
     Table root;
 
-    TextField tfdName, tfdEmail, tfdPassword;
+    TextField tfdName, tfdPassword;
     TextButton btnLogin, btnRegister;
 
     public LoginScreen(Sokoban aGame){
@@ -37,9 +37,6 @@ public class LoginScreen implements Screen {
         //
         tfdName = new TextField("", game.skin);
         tfdName.setMessageText("Name");
-
-        tfdEmail = new TextField("", game.skin);
-        tfdEmail.setMessageText("Email");
 
         tfdPassword = new TextField("", game.skin);
         tfdPassword.setMessageText("Password");
@@ -60,7 +57,6 @@ public class LoginScreen implements Screen {
         root.defaults().expandX();
 
         root.add(tfdName).row();
-        root.add(tfdEmail).row();
         root.add(tfdPassword).row();
 
         root.add(btnLogin).row();
@@ -110,7 +106,7 @@ public class LoginScreen implements Screen {
         Net.HttpRequest httpRequest = requestBuilder.newRequest().method(Net.HttpMethods.POST).header("Content-Type", "application/json").url(game.backend_url+"login.php").build();
 
         //TODO make regex validation
-        User user = new User(tfdName.getText(), tfdEmail.getText(), tfdPassword.getText());
+        User user = new User(tfdName.getText(), "", tfdPassword.getText());
 
         //TEST user
         //User user = new User("thinking_rabbit", "thinkingrabbit@gmail.com", "pass");
@@ -144,7 +140,7 @@ public class LoginScreen implements Screen {
 
             @Override
             public void failed(Throwable t){
-                Gdx.app.log("Error", t.getMessage());
+                Gdx.app.log("test", t.getMessage());
             }
 
             @Override

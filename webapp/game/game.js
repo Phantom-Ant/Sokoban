@@ -4,57 +4,17 @@ const ctx = canvas.getContext("2d");
 const tileSize = 48;
 const params = new URLSearchParams(window.location.search);
 
-let level = parseInt(params.get("level")) || 1;
-let movesCounter = 0;
-let player;
-let map;
 let level = parseInt(params.get("level"));
-let originalMapString = "";
-
-let movesCounter = 0;
 let player = null;
 let map = [];
+let movesCounter = 0;
+let originalMapString = "";
 
 const images = {
   floor: new Image(),
   wall: new Image(),
   box: new Image(),
   target: new Image(),
-  player: new Image(),
-  boxPlaced: new Image()
-};
-
-images.floor.src = "../assets/floor.png";
-images.wall.src = "../assets/wall.png";
-images.box.src = "../assets/box.png";
-images.target.src = "../assets/target.png";
-images.player.src = "../assets/boxPlaced.png";
-images.boxPlaced.src = "../assets/boxPlaced.png";
-
-function loadLevel() {
-  fetch('get_level.php?level=' + level)
-    .then(response => response.json())
-    .then(data => {
-      console.log(data);
-      if (data.error) {
-        alert(data.error);
-      } else {
-        map = data.map;
-        player = data.player;
-        movesCounter = 0;
-        document.getElementById("moves").textContent = movesCounter;
-        document.getElementById("level").textContent = level;
-        document.getElementById("message").classList.remove("show");
-        document.getElementById("levels").classList.add("hidden");
-
-        resizeCanvas();
-
-        drawMap();
-      }
-    })
-    .catch(error => {
-      console.error('Error loading level:', error);
-    });
   playerFront: new Image(),
   playerBack: new Image(),
   playerLeft: new Image(),
@@ -63,29 +23,28 @@ function loadLevel() {
 };
 
 const imageSources = {
-  floor: "../../assets/floor.png",
-  wall: "../../assets/wall.png",
-  box: "../../assets/box.png",
-  target: "../../assets/target.png",
-  playerFront: "../../assets/playerFront.png",
-  playerBack: "../../assets/playerBack.png",
-  playerLeft: "../../assets/playerLeft.png",
-  playerRight: "../../assets/playerRight.png",
-  boxPlaced: "../../assets/boxPlaced.png"
+  floor: "../../assets/img/floor.png",
+  wall: "../../assets/img/wall.png",
+  box: "../../assets/img/box.png",
+  target: "../../assets/img/target.png",
+  playerFront: "../../assets/img/playerFront.jpg",
+  playerBack: "../../assets/img/playerBack.jpg",
+  playerLeft: "../../assets/img/playerLeft.png",
+  playerRight: "../../assets/img/playerRight.png",
+  boxPlaced: "../../assets/img/boxPlaced.png"
 };
 
 function loadImages() {
   const promises = [];
   for (let key in images) {
-    const img = images[key];
-    img.src = imageSources[key];
-    promises.push(new Promise(resolve => img.onload = resolve));
+    images[key].src = imageSources[key];
+    promises.push(new Promise(resolve => images[key].onload = resolve));
   }
   return Promise.all(promises);
 }
 
 function decodeMap(encoded) {
-  return encoded.replace(/\\n/g, '\n').trim().split('\n').map(r => r.split(''));
+  return encoded.replace(/\\n/g, '\n').trim().split('\n').map(row => row.split(''));
 }
 
 function loadLevel() {
@@ -97,7 +56,7 @@ function loadLevel() {
   }
 
   originalMapString = decodeURIComponent(levelData).replace(/\\n/g, '\n').trim();
-  map = decodeMap(levelData);
+  map = decodeMap(originalMapString);
 
   let playerFound = false;
   for (let y = 0; y < map.length; y++) {
@@ -119,7 +78,6 @@ function loadLevel() {
 
   movesCounter = 0;
   document.getElementById("moves").textContent = movesCounter;
-  document.getElementById("level").textContent = level || "?";
   document.getElementById("message").classList.remove("show");
   document.getElementById("levels").classList.add("hidden");
 
@@ -138,27 +96,6 @@ function drawMap() {
   for (let y = 0; y < map.length; y++) {
     for (let x = 0; x < map[y].length; x++) {
       const tile = map[y][x];
-      if (tile === 0) {
-        ctx.drawImage(images.floor, x * tileSize, y * tileSize, tileSize, tileSize);
-      } else if (tile === 1) {
-        ctx.drawImage(images.wall, x * tileSize, y * tileSize, tileSize, tileSize);
-      } else if (tile === 3) {
-        ctx.drawImage(images.box, x * tileSize, y * tileSize, tileSize, tileSize);
-      } else if (tile === 4) {
-        ctx.drawImage(images.target, x * tileSize, y * tileSize, tileSize, tileSize);
-      } else if (tile === 5) {
-        ctx.drawImage(images.boxPlaced, x * tileSize, y * tileSize, tileSize, tileSize);
-      }
-    }
-  }
-
-  ctx.drawImage(images.player, player.x * tileSize, player.y * tileSize, tileSize, tileSize);
-  if (!player) return;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  for (let y = 0; y < map.length; y++) {
-    for (let x = 0; x < map[y].length; x++) {
-      const tile = map[y][x];
       const px = x * tileSize;
       const py = y * tileSize;
       switch (tile) {
@@ -172,7 +109,7 @@ function drawMap() {
     }
   }
 
-  let currentPlayerImage = images[`player${capitalize(player.direction)}`] || images.playerFront;
+  const currentPlayerImage = images[`player${capitalize(player.direction)}`] || images.playerFront;
   ctx.drawImage(currentPlayerImage, player.x * tileSize, player.y * tileSize, tileSize, tileSize);
 }
 
@@ -185,52 +122,17 @@ function isFree(x, y) {
   return ['-', '_', '.'].includes(map[y][x]);
 }
 
-function move(dx, dy) {
+function move(dx, dy, direction) {
   const nx = player.x + dx;
   const ny = player.y + dy;
   const nnx = player.x + dx * 2;
   const nny = player.y + dy * 2;
 
-  if (map[ny][nx] === 1) return;
-
-  if (map[ny][nx] === 3 || map[ny][nx] === 5) {
-
-    if (isFree(nnx, nny)) {
-
-      map[ny][nx] = (map[ny][nx] === 5) ? 4 : 0;
-      map[nny][nnx] = (map[nny][nnx] === 4) ? 5 : 3;
-    } else {
-      return;
-    }
-  }
-
-  player.x = nx;
-  player.y = ny;
-
-  movesCounter++;
-  document.getElementById("moves").textContent = movesCounter;
-
-  drawMap();
-
-  checkWin();
-}
-
-function isFree(x, y) {
-  if (x < 0 || y < 0 || x >= map[0].length || y >= map.length) {
-    return false;
-  }
-  return map[y][x] === 0 || map[y][x] === 4;
-}
-
-function checkWin() {
-  for (let row of map) {
-    if (row.includes(4)) return;
-
   if (nx < 0 || ny < 0 || nx >= map[0].length || ny >= map.length) return;
 
   const nextTile = map[ny][nx];
 
-  if (nextTile === '#') return;
+  if (nextTile === '#' || nextTile === 1) return;
 
   if (nextTile === '$' || nextTile === '*') {
     if (!isFree(nnx, nny)) return;
@@ -240,6 +142,8 @@ function checkWin() {
 
   player.x = nx;
   player.y = ny;
+  player.direction = direction;
+
   movesCounter++;
   document.getElementById("moves").textContent = movesCounter;
   drawMap();
@@ -255,25 +159,30 @@ function checkWin() {
 }
 
 function restartLevel() {
-  loadLevel();
-  map = originalMapString.split('\n').map(row => row.split(''));
+  map = decodeMap(originalMapString);
   movesCounter = 0;
   document.getElementById("moves").textContent = movesCounter;
   document.getElementById("message").classList.remove("show");
   document.getElementById("levels").classList.add("hidden");
-  loadLevel();
+
+  for (let y = 0; y < map.length; y++) {
+    for (let x = 0; x < map[y].length; x++) {
+      if (map[y][x] === '@') {
+        player = { x, y, direction: 'front' };
+        map[y][x] = '-';
+      }
+    }
+  }
+
+  drawMap();
 }
 
 document.addEventListener("keydown", (e) => {
   switch (e.key) {
-    case "ArrowUp": move(0, -1); break;
-    case "ArrowDown": move(0, 1); break;
-    case "ArrowLeft": move(-1, 0); break;
-    case "ArrowRight": move(1, 0); break;
-    case "ArrowUp": player.direction = "back"; move(0, -1); break;
-    case "ArrowDown": player.direction = "front"; move(0, 1); break;
-    case "ArrowLeft": player.direction = "left"; move(-1, 0); break;
-    case "ArrowRight": player.direction = "right"; move(1, 0); break;
+    case "ArrowUp": move(0, -1, "back"); break;
+    case "ArrowDown": move(0, 1, "front"); break;
+    case "ArrowLeft": move(-1, 0, "left"); break;
+    case "ArrowRight": move(1, 0, "right"); break;
   }
 });
 
@@ -284,7 +193,6 @@ document.getElementById("levels").addEventListener("click", () => {
 document.getElementById("restartBtn").addEventListener("click", () => {
   restartLevel();
 });
-window.onload = loadLevel;
 
 window.onload = () => {
   loadImages().then(loadLevel);
