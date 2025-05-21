@@ -10,6 +10,9 @@ let map = [];
 let movesCounter = 0;
 let originalMapString = "";
 
+let startTime = null;
+let timerInterval = null;
+
 const images = {
   floor: new Image(),
   wall: new Image(),
@@ -47,11 +50,30 @@ function decodeMap(encoded) {
   return encoded.replace(/\\n/g, '\n').trim().split('\n').map(row => row.split(''));
 }
 
+function startTimer() {
+  startTime = new Date();
+  timerInterval = setInterval(updateTimer, 1000);
+}
+
+function updateTimer() {
+  const currentTime = new Date();
+  const elapsed = new Date(currentTime - startTime);
+  const minutes = elapsed.getMinutes().toString().padStart(2, '0');
+  const seconds = elapsed.getSeconds().toString().padStart(2, '0');
+  document.getElementById("timer").textContent = `${minutes}:${seconds}`;
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+}
+
 function loadLevel() {
+  stopTimer();
   const levelData = params.get("levelData");
   if (!levelData) {
     alert("Nessun livello specificato.");
     window.location.href = '../levels/levels.html';
+    startTimer();
     return;
   }
 
@@ -154,6 +176,7 @@ function checkWin() {
   for (let row of map) {
     if (row.includes('$')) return;
   }
+  stopTimer();
   document.getElementById("message").classList.add("show");
   document.getElementById("levels").classList.remove("hidden");
 }
