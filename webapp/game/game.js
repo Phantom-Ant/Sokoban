@@ -1,17 +1,18 @@
+// Ottieni il canvas e il suo contesto 2D
 const canvas = document.getElementById("window");
 const ctx = canvas.getContext("2d");
 
-const tileSize = 48;
-const params = new URLSearchParams(window.location.search);
+const tileSize = 48; // Dimensione di ogni tile in pixel
+const params = new URLSearchParams(window.location.search); 
+let level = parseInt(params.get("level")); // livello corrente
+let player = null; //giocatore
+let map = []; //mappa
+let movesCounter = 0; // count mosse
+let originalMapString = ""; // mappa originale per reset
+let gameTime = 0; // tempo di gioco in secondi
+let timerInterval = null; //  intervallo del timer
 
-let level = parseInt(params.get("level"));
-let player = null;
-let map = [];
-let movesCounter = 0;
-let originalMapString = "";
-let gameTime = 0;
-let timerInterval = null;
-
+//immagini
 const images = {
   floor: new Image(),
   wall: new Image(),
@@ -24,6 +25,7 @@ const images = {
   boxPlaced: new Image()
 };
 
+// vari percorsi delle immagini
 const imageSources = {
   floor: "../../assets/img/floor.png",
   wall: "../../assets/img/wall.png",
@@ -35,14 +37,13 @@ const imageSources = {
   playerRight: "../../assets/img/playerRight.png",
   boxPlaced: "../../assets/img/boxPlaced.png"
 };
-
-// Timer functions
 function startTimer() {
   gameTime = 0;
   updateTimer();
-  timerInterval = setInterval(updateTimer, 1000);
+  timerInterval = setInterval(updateTimer, 1000); // aggiorna ogni secondo
 }
 
+// aggiorna il display del timer
 function updateTimer() {
   gameTime++;
   const minutes = Math.floor(gameTime / 60).toString().padStart(2, '0');
@@ -53,38 +54,43 @@ function updateTimer() {
 function stopTimer() {
   clearInterval(timerInterval);
 }
-
 function loadImages() {
   const promises = [];
   for (let key in images) {
     images[key].src = imageSources[key];
     promises.push(new Promise(resolve => images[key].onload = resolve));
   }
-  return Promise.all(promises);
+  return Promise.all(promises); // restituisce una promise che si risolve quando tutte le immagini sono caricate
 }
 
+// Decodifica la mappa da stringa a array 2d
 function decodeMap(encoded) {
   return encoded.replace(/\\n/g, '\n').trim().split('\n').map(row => row.split(''));
 }
 
+// carica il livello corrente
 function loadLevel() {
   stopTimer();
   const levelData = params.get("levelData");
+  
+  // controlla livello
   if (!levelData) {
     alert("Nessun livello specificato.");
     window.location.href = '../levels/levels.html';
     return;
   }
 
+  // decodifica e prepara la mappa
   originalMapString = decodeURIComponent(levelData).replace(/\\n/g, '\n').trim();
   map = decodeMap(originalMapString);
 
+  // trova la posizione iniziale del giocatore
   let playerFound = false;
   for (let y = 0; y < map.length; y++) {
     for (let x = 0; x < map[y].length; x++) {
       if (map[y][x] === '@') {
         player = { x, y, direction: 'front' };
-        map[y][x] = '-';
+        map[y][x] = '-'; 
         playerFound = true;
         break;
       }
@@ -97,6 +103,7 @@ function loadLevel() {
     return;
   }
 
+  // resetta
   movesCounter = 0;
   document.getElementById("moves").textContent = movesCounter;
   document.getElementById("message").classList.remove("show");
@@ -107,11 +114,13 @@ function loadLevel() {
   startTimer();
 }
 
+// ridimensiona il canvas in base alla mappa
 function resizeCanvas() {
   const tileSize = 48;
   canvas.width = map[0].length * tileSize;
   canvas.height = map.length * tileSize;
   
+  // calcola la scala per adattarsi allo schermo
   const maxDisplaySize = 580;
   const scale = Math.min(
     maxDisplaySize / canvas.width,
@@ -119,18 +128,23 @@ function resizeCanvas() {
     1
   );
   
+  // applica le dimensioni ridimensionate
   canvas.style.width = `${canvas.width * scale}px`;
   canvas.style.height = `${canvas.height * scale}px`;
 }
 
+// disegna mappa
 function drawMap() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // disegna ogni tile della mappa
   for (let y = 0; y < map.length; y++) {
     for (let x = 0; x < map[y].length; x++) {
       const tile = map[y][x];
       const px = x * tileSize;
       const py = y * tileSize;
+      
+      // seleziona l'immagine corretta in base al tipo di tile
       switch (tile) {
         case '#': ctx.drawImage(images.wall, px, py, tileSize, tileSize); break;
         case '-': case '_': ctx.drawImage(images.floor, px, py, tileSize, tileSize); break;
@@ -142,41 +156,49 @@ function drawMap() {
     }
   }
 
+  // disegna il giocatore con la direzione corretta
   const currentPlayerImage = images[`player${capitalize(player.direction)}`] || images.playerFront;
   ctx.drawImage(currentPlayerImage, player.x * tileSize, player.y * tileSize, tileSize, tileSize);
 }
 
-function capitalize(str) {
+function capitalize(str) { // Capitalizza la prima lettera di una stringa 
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+// se posizione è libera (pavimento o target)
 function isFree(x, y) {
   if (x < 0 || y < 0 || x >= map[0].length || y >= map.length) return false;
   return ['-', '_', '.'].includes(map[y][x]);
 }
 
+// gestisce il movimento del giocatore
 function move(dx, dy, direction) {
-  const nx = player.x + dx;
-  const ny = player.y + dy;
-  const nnx = player.x + dx * 2;
-  const nny = player.y + dy * 2;
+  const nx = player.x + dx; // x del giocatore
+  const ny = player.y + dy; // y del giocatore
+  const nnx = player.x + dx * 2; //  x per scatola
+  const nny = player.y + dy * 2; //  y per scatola
 
+  // controllo i bordi della mappa
   if (nx < 0 || ny < 0 || nx >= map[0].length || ny >= map.length) return;
 
   const nextTile = map[ny][nx];
 
+  // blocca il movimento su muri
   if (nextTile === '#' || nextTile === 1) return;
 
+  // movimento delle scatole
   if (nextTile === '$' || nextTile === '*') {
     if (!isFree(nnx, nny)) return;
     map[ny][nx] = nextTile === '*' ? '.' : '-';
     map[nny][nnx] = map[nny][nnx] === '.' ? '*' : '$';
   }
 
+  // aggiorna la posizione del giocatore
   player.x = nx;
   player.y = ny;
   player.direction = direction;
 
+  // ++ aggiorna il contatore mosse
   movesCounter++;
   document.getElementById("moves").textContent = movesCounter;
   drawMap();
@@ -185,8 +207,10 @@ function move(dx, dy, direction) {
 
 function checkWin() {
   for (let row of map) {
-    if (row.includes('$')) return;
+    if (row.includes('$')) return; // se ci sono ancora scatole da posizionare
   }
+  
+
   stopTimer();
   document.getElementById("message").classList.add("show");
   document.getElementById("levels").classList.remove("hidden");
@@ -200,6 +224,7 @@ function restartLevel() {
   document.getElementById("message").classList.remove("show");
   document.getElementById("levels").classList.add("hidden");
 
+  //riposiziona il giocatore
   for (let y = 0; y < map.length; y++) {
     for (let x = 0; x < map[y].length; x++) {
       if (map[y][x] === '@') {
@@ -213,7 +238,7 @@ function restartLevel() {
   startTimer();
 }
 
-// Event listeners
+
 document.addEventListener("keydown", (e) => {
   switch (e.key) {
     case "ArrowUp": move(0, -1, "back"); break;
@@ -223,13 +248,16 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+
 document.getElementById("levels").addEventListener("click", () => {
   window.location.href = '../levels/levels.html';
 });
 
+
 document.getElementById("restartBtn").addEventListener("click", () => {
   restartLevel();
 });
+
 
 window.addEventListener('resize', () => {
   if (map.length > 0) {
@@ -237,7 +265,6 @@ window.addEventListener('resize', () => {
     drawMap();
   }
 });
-
 window.onload = () => {
   loadImages().then(loadLevel);
 };
