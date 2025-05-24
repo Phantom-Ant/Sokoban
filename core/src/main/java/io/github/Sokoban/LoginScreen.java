@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -36,11 +37,12 @@ public class LoginScreen implements Screen {
         stage = new Stage(viewport);
         //
         tfdName = new TextField("", game.skin);
+        tfdName.setAlignment(Align.center);
         tfdName.setMessageText("Name");
 
         tfdPassword = new TextField("", game.skin);
+        tfdPassword.setAlignment(Align.center);
         tfdPassword.setMessageText("Password");
-
 
         btnLogin = new TextButton("Login", game.skin);
         onChange(btnLogin, this::login);
@@ -82,7 +84,7 @@ public class LoginScreen implements Screen {
     }
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(Color.WHITE); //TEST
+        ScreenUtils.clear(game.backgroundColor); //TEST
         stage.act();
         stage.draw();
     }

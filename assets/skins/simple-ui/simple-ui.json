@@ -1,0 +1,418 @@
+{
+"com.badlogic.gdx.graphics.g2d.BitmapFont": {
+	"menu": {
+		"file": "menu.fnt",
+		"scaledSize": -1,
+		"markupEnabled": false,
+		"flip": false
+	},
+	"title": {
+		"file": "title.fnt",
+		"scaledSize": -1,
+		"markupEnabled": false,
+		"flip": false
+	}
+},
+"com.badlogic.gdx.graphics.Color": {
+	"black": {
+		"r": 0,
+		"g": 0,
+		"b": 0,
+		"a": 1
+	},
+	"default": {
+		"r": 0.8980392,
+		"g": 0.14509805,
+		"b": 0.32941177,
+		"a": 1
+	},
+	"default-alpha": {
+		"r": 0.8980392,
+		"g": 0.14509805,
+		"b": 0.32941177,
+		"a": 0.5019608
+	},
+	"default-pressed": {
+		"r": 0.62352943,
+		"g": 0.06666667,
+		"b": 0.20392157,
+		"a": 1
+	},
+	"obscure": {
+		"r": 0,
+		"g": 0,
+		"b": 0,
+		"a": 0.7529412
+	},
+	"white": {
+		"r": 1,
+		"g": 1,
+		"b": 1,
+		"a": 1
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable": {
+	"home-tint": {
+		"name": "home",
+		"color": {
+			"r": 0.8980392,
+			"g": 0.14509805,
+			"b": 0.32941177,
+			"a": 1
+		}
+	},
+	"account-tint": {
+		"name": "account",
+		"color": {
+			"r": 0.8980392,
+			"g": 0.14509805,
+			"b": 0.32941177,
+			"a": 1
+		}
+	},
+	"cross-tint": {
+		"name": "cross",
+		"color": "default"
+	},
+	"levels-tint": {
+		"name": "levels",
+		"color": "default"
+	},
+	"settings-tint": {
+		"name": "settings",
+		"color": "default"
+	},
+	"leaderboard-tint": {
+		"name": "leaderboard",
+		"color": "default"
+	},
+	"undo-tint": {
+		"name": "undo",
+		"color": "default"
+	},
+	"leaderboard-tint-pressed": {
+		"name": "leaderboard",
+		"color": "default-pressed"
+	},
+	"settings-tint-pressed": {
+		"name": "settings",
+		"color": "default-pressed"
+	},
+	"undo-tint-pressed": {
+		"name": "undo",
+		"color": "default-pressed"
+	},
+	"home-tint-pressed": {
+		"name": "home",
+		"color": "default-pressed"
+	},
+	"levels-tint-pressed": {
+		"name": "levels",
+		"color": "default-pressed"
+	},
+	"cross-tint-pressed": {
+		"name": "cross",
+		"color": "default-pressed"
+	},
+	"account-tint-pressed": {
+		"name": "account",
+		"color": "default-pressed"
+	},
+	"solid-left-tint": {
+		"name": "solid-left",
+		"color": "default"
+	},
+	"solid-left-tint-pressed": {
+		"name": "solid-left",
+		"color": "default-pressed"
+	},
+	"obscure": {
+		"name": "white-pixel",
+		"color": "obscure"
+	},
+	"selection": {
+		"name": "white-pixel",
+		"color": "default-alpha"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle": {
+	"default": {
+		"up": "default",
+		"down": "down",
+		"over": "default",
+		"focused": "default",
+		"disabled": "disabled"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.ImageButton$ImageButtonStyle": {
+	"default": {
+		"up": "default",
+		"down": "down",
+		"disabled": "disabled",
+		"pressedOffsetY": 1
+	},
+	"leaderboard": {
+		"imageUp": "leaderboard-tint",
+		"imageDown": "leaderboard-tint-pressed",
+		"imageDisabled": "leaderboard-tint-pressed",
+		"up": "default",
+		"down": "down",
+		"disabled": "disabled",
+		"pressedOffsetY": 1
+	},
+	"account": {
+		"imageUp": "account-tint",
+		"imageDown": "account-tint-pressed",
+		"imageDisabled": "account-tint-pressed",
+		"up": "default",
+		"down": "down",
+		"disabled": "disabled",
+		"pressedOffsetY": 1
+	},
+	"undo": {
+		"imageUp": "undo-tint",
+		"imageDown": "undo-tint-pressed",
+		"imageDisabled": "undo-tint-pressed",
+		"up": "default",
+		"down": "down",
+		"disabled": "disabled",
+		"pressedOffsetY": 1
+	},
+	"home": {
+		"imageUp": "home-tint",
+		"imageDown": "home-tint-pressed",
+		"imageDisabled": "home-tint-pressed",
+		"up": "default",
+		"down": "down",
+		"disabled": "disabled",
+		"pressedOffsetY": 1
+	},
+	"levels": {
+		"imageUp": "levels-tint",
+		"imageDown": "levels-tint-pressed",
+		"imageDisabled": "levels-tint-pressed",
+		"up": "default",
+		"down": "down",
+		"disabled": "disabled",
+		"pressedOffsetY": 1
+	},
+	"back": {
+		"imageUp": "solid-left-tint",
+		"imageDown": "solid-left-tint-pressed",
+		"imageDisabled": "solid-left-tint-pressed",
+		"up": "default",
+		"down": "down",
+		"disabled": "disabled",
+		"pressedOffsetY": 1
+	},
+	"table": {
+		"up": "text",
+		"down": "text-down",
+		"disabled": "text-disabled",
+		"pressedOffsetY": 1
+	},
+	"leaderboard-table": {
+		"imageUp": "leaderboard-tint",
+		"imageDown": "leaderboard-tint-pressed",
+		"imageDisabled": "leaderboard-tint-pressed",
+		"up": "text",
+		"down": "text-down",
+		"disabled": "text-disabled",
+		"pressedOffsetY": 1
+	},
+	"account-table": {
+		"imageUp": "account-tint",
+		"imageDown": "account-tint-pressed",
+		"imageDisabled": "account-tint-pressed",
+		"up": "text",
+		"down": "text-down",
+		"disabled": "text-disabled",
+		"pressedOffsetY": 1
+	},
+	"undo-table": {
+		"imageUp": "undo-tint",
+		"imageDown": "undo-tint-pressed",
+		"imageDisabled": "undo-tint-pressed",
+		"up": "text",
+		"down": "text-down",
+		"disabled": "text-disabled",
+		"pressedOffsetY": 1
+	},
+	"home-table": {
+		"imageUp": "home-tint",
+		"imageDown": "home-tint-pressed",
+		"imageDisabled": "home-tint-pressed",
+		"up": "text",
+		"down": "text-down",
+		"disabled": "text-disabled",
+		"pressedOffsetY": 1
+	},
+	"levels-table": {
+		"imageUp": "levels-tint",
+		"imageDown": "levels-tint-pressed",
+		"imageDisabled": "levels-tint-pressed",
+		"up": "text",
+		"down": "text-down",
+		"disabled": "text-disabled",
+		"pressedOffsetY": 1
+	},
+	"back-table": {
+		"imageUp": "solid-left-tint",
+		"imageDown": "solid-left-tint-pressed",
+		"imageDisabled": "solid-left-tint-pressed",
+		"up": "text",
+		"down": "text-down",
+		"disabled": "text-disabled",
+		"pressedOffsetY": 1
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton$ImageTextButtonStyle": {
+	"default": {
+		"font": "menu",
+		"fontColor": "default",
+		"downFontColor": "default-pressed",
+		"disabledFontColor": "default-alpha",
+		"up": "default",
+		"down": "down",
+		"disabled": "disabled",
+		"pressedOffsetY": 1
+	},
+	"account": {
+		"imageUp": "account-tint",
+		"imageDown": "account-tint-pressed",
+		"imageDisabled": "account-tint-pressed",
+		"font": "menu",
+		"fontColor": "default",
+		"downFontColor": "default-pressed",
+		"disabledFontColor": "default-alpha",
+		"up": "default",
+		"down": "down",
+		"disabled": "disabled",
+		"pressedOffsetY": 1
+	},
+	"account-table": {
+		"imageUp": "account-tint",
+		"imageDown": "account-tint-pressed",
+		"imageDisabled": "account-tint-pressed",
+		"font": "menu",
+		"fontColor": "default",
+		"downFontColor": "default-pressed",
+		"disabledFontColor": "default-alpha",
+		"up": "text",
+		"down": "text-down",
+		"disabled": "text-disabled",
+		"pressedOffsetY": 1
+	},
+	"table": {
+		"font": "menu",
+		"fontColor": "default",
+		"downFontColor": "default-pressed",
+		"disabledFontColor": "default-alpha",
+		"up": "text",
+		"down": "text-down",
+		"disabled": "text-disabled",
+		"pressedOffsetY": 1
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle": {
+	"default": {
+		"font": "menu",
+		"fontColor": "default",
+		"background": "default"
+	},
+	"title": {
+		"font": "title",
+		"fontColor": "default"
+	},
+	"table": {
+		"font": "menu",
+		"fontColor": "default",
+		"background": "label"
+	},
+	"text": {
+		"font": "menu",
+		"fontColor": "default"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.ProgressBar$ProgressBarStyle": {
+	"default-horizontal": {
+		"background": "default",
+		"knob": "cross-tint"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle": {
+	"default": {
+		"background": "default"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.Slider$SliderStyle": {
+	"default-horizontal": {
+		"background": "default"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.SplitPane$SplitPaneStyle": {
+	"default-horizontal": {
+		"handle": "default"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle": {
+	"default": {
+		"font": "menu",
+		"fontColor": "default",
+		"downFontColor": "default-pressed",
+		"disabledFontColor": "default-alpha",
+		"up": "default",
+		"down": "down",
+		"disabled": "disabled",
+		"pressedOffsetY": 1
+	},
+	"table": {
+		"font": "menu",
+		"fontColor": "default",
+		"downFontColor": "default-pressed",
+		"disabledFontColor": "default-alpha",
+		"up": "text",
+		"down": "text-down",
+		"disabled": "text-disabled",
+		"pressedOffsetY": 1
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle": {
+	"default": {
+		"font": "menu",
+		"fontColor": "default",
+		"focusedFontColor": "default",
+		"disabledFontColor": "default-alpha",
+		"background": "default",
+		"disabledBackground": "disabled",
+		"cursor": "cursor",
+		"selection": "selection",
+		"messageFontColor": "default-alpha"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.TextTooltip$TextTooltipStyle": {
+	"default": {
+		"label": "default"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.Touchpad$TouchpadStyle": {
+	"default": {
+		"background": "disabled",
+		"knob": "settings-tint"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.Tree$TreeStyle": {
+	"default": {
+		"plus": "cursor",
+		"minus": "cursor"
+	}
+},
+"com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle": {
+	"default": {
+		"background": "window",
+		"titleFont": "title",
+		"titleFontColor": "default",
+		"stageBackground": "obscure"
+	}
+}
+}

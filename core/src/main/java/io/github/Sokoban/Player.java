@@ -44,7 +44,7 @@ public class Player extends Sprite implements GestureDetector.GestureListener {
         return directionY;
     }
 
-    public void face(int x, int y){//direction
+    public void face(int x, int y){//direction TODO rewrite removing flip and using playerLeft and playerRight
         directionX=x;
         directionY=y;
         if(y==0){

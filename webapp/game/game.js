@@ -111,7 +111,7 @@ function resizeCanvas() {
   const tileSize = 48;
   canvas.width = map[0].length * tileSize;
   canvas.height = map.length * tileSize;
-  
+
   // Adjust display size while keeping aspect ratio
   const maxDisplaySize = 580;
   const scale = Math.min(
@@ -119,7 +119,7 @@ function resizeCanvas() {
     maxDisplaySize / canvas.height,
     1
   );
-  
+
   canvas.style.width = `${canvas.width * scale}px`;
   canvas.style.height = `${canvas.height * scale}px`;
 }

@@ -5,6 +5,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -22,7 +23,8 @@ public class TitleScreen implements Screen {
 
     Table root, tblUp, tblCenter;
     Label lblTitle, lblUser;
-    TextButton btnStart, btnAccount;
+    TextButton btnStart;
+    ImageTextButton btnAccount;
 
     public TitleScreen(Sokoban aGame){
         viewport = new ScreenViewport();
@@ -30,9 +32,8 @@ public class TitleScreen implements Screen {
         game = aGame;
         stage = new Stage(viewport);
 
-        lblTitle = new Label("SOKOBAN", game.
-            skin);
-        lblTitle.setFontScale(14f);
+        lblTitle = new Label("SOKOBAN", game.skin, "title");
+        lblTitle.setFontScale(8f);
 
         String strUser = ""; //TODO use a better approach
         if(game.user != null){
@@ -41,11 +42,11 @@ public class TitleScreen implements Screen {
             strUser = "No user";
         }
 
-        lblUser = new Label(strUser, game.skin);
+        lblUser = new Label(strUser, game.skin, "table");
         lblUser.setAlignment(Align.center);
 
         btnStart = new TextButton("Levels", game.skin);
-        btnAccount = new TextButton("Account", game.skin);
+        btnAccount = new ImageTextButton("account", game.skin, "account-table");
 
         onChange(btnStart, () -> game.setScreen(new LevelsScreen(game)));
         onChange(btnAccount, () -> {
@@ -56,12 +57,10 @@ public class TitleScreen implements Screen {
         root.setFillParent(true);
 
         tblUp = new Table();
-        tblUp.defaults().width(Value.percentWidth(0.3f, root));
         tblUp.defaults().height(120f);
-        tblUp.defaults().expandX();
 
-        tblUp.add(lblUser).right();
-        tblUp.add(btnAccount).right();
+        tblUp.add(lblUser).growX().right();
+        tblUp.add(btnAccount).width(Value.percentWidth(0.35f, root)).right();
 
         tblCenter = new Table();
         tblCenter.defaults().width(Value.percentWidth(0.3f, root));
@@ -117,7 +116,7 @@ public class TitleScreen implements Screen {
     }
 
     public void draw(){
-        ScreenUtils.clear(Color.WHITE); //TEST
+        ScreenUtils.clear(game.backgroundColor); //TEST
         stage.act();
         stage.draw();
     }

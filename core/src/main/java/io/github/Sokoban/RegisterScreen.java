@@ -13,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -36,12 +37,15 @@ public class RegisterScreen implements Screen {
         stage = new Stage(viewport);
         //
         tfdName = new TextField("", game.skin);
+        tfdName.setAlignment(Align.center);
         tfdName.setMessageText("Name");
 
         tfdEmail = new TextField("", game.skin);
+        tfdEmail.setAlignment(Align.center);
         tfdEmail.setMessageText("Email");
 
         tfdPassword = new TextField("", game.skin);
+        tfdPassword.setAlignment(Align.center);
         tfdPassword.setMessageText("Password");
 
 
@@ -86,7 +90,7 @@ public class RegisterScreen implements Screen {
     }
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(Color.WHITE); //TEST
+        ScreenUtils.clear(game.backgroundColor); //TEST
         stage.act();
         stage.draw();
     }

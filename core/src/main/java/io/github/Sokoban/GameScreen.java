@@ -12,6 +12,7 @@ import com.badlogic.gdx.net.HttpRequestBuilder;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -23,6 +24,8 @@ import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,9 +49,10 @@ public class GameScreen implements Screen { //TODO add restart and home button
     private InputMultiplexer inputMultiplexer;
 
     private SpriteBatch batch;
-    private Table winRoot, root;
+    private Table winRoot, tblWinLbl, root;
     private Window winScore;
-    private TextButton btnUndo, btnHome, btnLevels, btnLeaderboard, btnPublishScore;
+    private ImageButton btnUndo, btnHome, btnLevels, btnLeaderboard;
+    private TextButton btnPublishScore;
     private Label lblMoves, lblPushes, lblTimer, winMoves, winPushes, winTimer;
     private Player player;
     private boolean[][] walls, targets, floor;
@@ -98,19 +102,16 @@ public class GameScreen implements Screen { //TODO add restart and home button
         //
 
         //undo btn
-        btnUndo = new TextButton("UNDO", game.skin);
-        onChange(btnUndo, () ->{
-            btnUndo.setText("UNDO");
-            undo();
-        });
+        btnUndo = new ImageButton(game.skin, "undo");
+        onChange(btnUndo, this::undo);
 
-        btnHome = new TextButton("Title Screen", game.skin);
+        btnHome = new ImageButton(game.skin, "home");
         onChange(btnHome, ()-> game.setScreen(game.title_screen));
 
-        btnLevels = new TextButton("Levels", game.skin);
+        btnLevels = new ImageButton(game.skin, "levels");
         onChange(btnLevels, ()-> game.setScreen(new LevelsScreen(game)));
 
-        btnLeaderboard = new TextButton("Leaderboard", game.skin);
+        btnLeaderboard = new ImageButton(game.skin, "leaderboard");
         onChange(btnLeaderboard, ()-> game.setScreen(new LeaderBoardScreen(game, level)));
 
         btnPublishScore = new TextButton("Publish score", game.skin);
@@ -125,27 +126,40 @@ public class GameScreen implements Screen { //TODO add restart and home button
 
         //
 
-        lblMoves = new Label("Moves: 0", game.skin);
-        //lblMoves.setColor(Color.WHITE);//TODO fix color
+        lblMoves = new Label("Moves: 0", game.skin, "table");
+        lblMoves.setAlignment(Align.center);
 
-        lblPushes = new Label("Pushes: 0", game.skin);
+        lblPushes = new Label("Pushes: 0", game.skin, "table");
+        lblPushes.setAlignment(Align.center);
 
-        lblTimer = new Label("Timer: 0", game.skin);
+        lblTimer = new Label("Timer: 0", game.skin, "table");
+        lblTimer.setAlignment(Align.center);
 
         //TODO problem with background title bar lies on assets and ninepatch
         ///Score Window
 
-        winMoves = new Label("Moves: 0", game.skin);
-        winPushes = new Label("Pushes: 0", game.skin);
-        winTimer = new Label("Timer: 0", game.skin);
+        winMoves = new Label("Moves: 0", game.skin, "text");
+        winMoves.setAlignment(Align.center);
 
-        winScore = new Window("",game.skin);
+        winPushes = new Label("Pushes: 0", game.skin, "text");
+        winPushes.setAlignment(Align.center);
+
+        winTimer = new Label("Timer: 0", game.skin, "text");
+        winTimer.setAlignment(Align.center);
+
+        tblWinLbl = new Table();
+        //tblWinLbl.setFillParent(true);
+
+        tblWinLbl.add(winMoves).grow();
+        tblWinLbl.add(winPushes).grow();
+        tblWinLbl.add(winTimer).grow();
+
+
+
+        winScore = new Window("You won!",game.skin);
         winScore.setMovable(false);
 
-        winScore.add(new Label("You won!", game.skin)).align(Align.center).height(60f).expandX().top().colspan(3).row();
-        winScore.add(winMoves).expand();
-        winScore.add(winPushes).expand();
-        winScore.add(winTimer).expand().row();
+        winScore.add(tblWinLbl).grow().colspan(3).row();
 
         winScore.add(btnHome).height(120f).growX();
         winScore.add(btnLevels).height(120f).growX();
@@ -161,10 +175,11 @@ public class GameScreen implements Screen { //TODO add restart and home button
         //
         root.defaults().expand().bottom().right();
         //
+
         root.add(lblMoves);// moves lbl
         root.add(lblPushes);
-        root.add(lblTimer);
-        root.add(btnUndo).width(200f).height(150f);// undo btn
+        root.add(lblTimer).width(400f);
+        root.add(btnUndo).width(200f).height(200f);// undo btn
 
 
         winRoot = new Table();
@@ -230,10 +245,18 @@ public class GameScreen implements Screen { //TODO add restart and home button
         float delta = Gdx.graphics.getDeltaTime();
 
         if(!won){
-            //TODO fix timer stuff
             timer += delta;
             millis = (int) (timer*1000);
-            lblTimer.setText("Timer: "+ millis);
+
+            long hours = millis / 3600000;
+            long minutes = (millis % 3600000) / 60000;
+            long seconds = (millis % 60000) / 1000;
+
+            if(hours>0)
+                lblTimer.setText("Timer: "+ String.format("%02d:%02d:%02d", hours, minutes, seconds));
+            else
+                lblTimer.setText("Timer: "+ String.format("%02d:%02d", minutes, seconds));
+
             //TODO show timer in (hh):mm:ss
 
             if(player.isDirty() && tryMoving(player)) {// if the player needs to be drawn
@@ -251,7 +274,7 @@ public class GameScreen implements Screen { //TODO add restart and home button
 
     }
     private void draw(){
-        ScreenUtils.clear(Color.WHITE);//TEST
+        ScreenUtils.clear(game.backgroundColor);//TEST
 
         gameViewport.apply();
         batch.setProjectionMatrix(gameViewport.getCamera().combined);

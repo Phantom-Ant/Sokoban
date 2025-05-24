@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.net.HttpRequestBuilder;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -26,7 +28,8 @@ public class LevelsScreen implements Screen {
     Table tblList;
     Table root;
     ScrollPane srlPane;
-    TextButton btnLevel, btnLeaderBoard;//TODO Replace btnLeaderBoard with icon
+    TextButton btnLevel;
+    ImageButton btnLeaderBoard;
 
     public LevelsScreen(Sokoban aGame){//TODO rework ui, add leaderboard button for each level
         game = aGame;
@@ -35,8 +38,11 @@ public class LevelsScreen implements Screen {
         root = new Table(game.skin);
         root.setFillParent(true);
 
+
         tblList = new Table(game.skin);
-        tblList.setFillParent(true);
+        //tblList.setFillParent(true);
+
+        //tblList.defaults().spaceTop(4f);
 
         srlPane = new ScrollPane(tblList);
 
@@ -60,10 +66,10 @@ public class LevelsScreen implements Screen {
 
                     //Gdx.app.log("test", level.name);
 
-                    btnLevel = new TextButton(level.name+"\npublisher: "+level.publisher+"\npublish date: "+ level.publish_date, game.skin);
+                    btnLevel = new TextButton(level.name+"\npublisher: "+level.publisher+"\npublish date: "+ level.publish_date, game.skin, "table");
                     btnLevel.getLabel().setAlignment(Align.center);
 
-                    btnLeaderBoard = new TextButton("LeaderBoard", game.skin);
+                    btnLeaderBoard =new ImageButton(game.skin, "leaderboard-table");
 
                     onChange(btnLevel, () -> game.setScreen(new GameScreen(game, level)) );
                     onChange(btnLeaderBoard, ()-> game.setScreen(new LeaderBoardScreen(game, level)));
@@ -101,7 +107,7 @@ public class LevelsScreen implements Screen {
     }
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(Color.BLACK);
+        ScreenUtils.clear(game.backgroundColor);
         stage.act();
         stage.draw();
     }

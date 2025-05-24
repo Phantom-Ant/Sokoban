@@ -4,8 +4,14 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.utils.Align;
 import com.kotcrab.vis.ui.VisUI;
 
 
@@ -23,21 +29,34 @@ public class Sokoban extends Game {
     static public Texture tex_boxPlaced;
     ///
 
+    Color backgroundColor;
+
     public String backend_url;
 
     public User user; //TEMP TEST
     public Screen previousScreen; //TEMP TEST
-
     public Screen title_screen;
+
+    BitmapFont menu, title;
 
     @Override
     public void create() {//TODO replace static texture variables in player and box
 
+        backgroundColor = new Color(0x1A1A1AFF);
+
         VisUI.load();
-        skin = new Skin(Gdx.files.internal("skins/metalui/metal-ui.json"));
 
+        //skin = new Skin(Gdx.files.internal("skins/metalui/metal-ui.json"));
+        skin = new Skin(Gdx.files.internal("skins/simple-ui/simple-ui.json"));
 
-        skin.getFont("font").getData().setScale(3.0f);
+        menu = skin.getFont("menu");
+        title = skin.getFont("title");
+
+        menu.getData().setScale(5.0f);
+        menu.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+        title.getData().setScale(1.0f);
+        title.getRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+
 
 
         ///textures
@@ -52,8 +71,8 @@ public class Sokoban extends Game {
         tex_boxPlaced = new Texture("img/boxPlaced.png");
         ///
 
-        //backend_url = "http://10.0.2.2/PHP/Sokoban/";
-        backend_url = "https://52.7.182.242/Sokoban/backend/";
+        backend_url = "http://10.0.2.2/PHP/Sokoban/";
+
 
         title_screen = new TitleScreen(this);
 
