@@ -60,9 +60,9 @@ public class Sokoban extends Game {
 
 
         ///textures
-        tex_playerFront = new Texture("img/playerFront.jpg");//TODO use transparent image for player
-        tex_playerBack = new Texture("img/playerBack.jpg");//TODO use transparent image for player
-        tex_playerSide = new Texture("img/playerSide.jpg");//TODO use transparent image for player
+        tex_playerFront = new Texture("img/playerFront.png");//TODO use transparent image for player
+        tex_playerBack = new Texture("img/playerBack.png");//TODO use transparent image for player
+        tex_playerSide = new Texture("img/playerSide.png");//TODO use transparent image for player
         //TODO use playerRight and playerLeft instead of playerSide
         tex_wall = new Texture("img/wall.png"); //TODO use better image for walls
         tex_floor = new Texture("img/floor.png");
@@ -72,7 +72,6 @@ public class Sokoban extends Game {
         ///
 
         backend_url = "http://10.0.2.2/PHP/Sokoban/";
-
 
         title_screen = new TitleScreen(this);
 

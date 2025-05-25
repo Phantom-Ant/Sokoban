@@ -156,7 +156,7 @@ public class GameScreen implements Screen { //TODO add restart and home button
 
 
 
-        winScore = new Window("You won!",game.skin);
+        winScore = new Window("",game.skin);
         winScore.setMovable(false);
 
         winScore.add(tblWinLbl).grow().colspan(3).row();
