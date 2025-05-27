@@ -49,9 +49,7 @@ public class TitleScreen implements Screen {
         btnAccount = new ImageTextButton("account", game.skin, "account-table");
 
         onChange(btnStart, () -> game.setScreen(new LevelsScreen(game)));
-        onChange(btnAccount, () -> {
-            game.setScreen(new LoginScreen(game));
-        });
+        onChange(btnAccount, () -> game.setScreen(new LoginScreen(game)));
 
         root = new Table();
         root.setFillParent(true);

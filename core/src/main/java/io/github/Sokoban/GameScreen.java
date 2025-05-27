@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Net;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.MathUtils;
@@ -24,8 +23,6 @@ import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,9 +46,9 @@ public class GameScreen implements Screen { //TODO add restart and home button
     private InputMultiplexer inputMultiplexer;
 
     private SpriteBatch batch;
-    private Table winRoot, tblWinLbl, root;
+    private Table winRoot, tblWinLbl, root, tblScore, tblButtons;
     private Window winScore;
-    private ImageButton btnUndo, btnHome, btnLevels, btnLeaderboard;
+    private ImageButton btnUndo, btnHome, btnLevels, winBtnHome, winBtnLevels, btnLeaderboard;
     private TextButton btnPublishScore;
     private Label lblMoves, lblPushes, lblTimer, winMoves, winPushes, winTimer;
     private Player player;
@@ -106,10 +103,17 @@ public class GameScreen implements Screen { //TODO add restart and home button
         onChange(btnUndo, this::undo);
 
         btnHome = new ImageButton(game.skin, "home");
-        onChange(btnHome, ()-> game.setScreen(game.title_screen));
+        onChange(btnHome, () -> game.setScreen(game.title_screen));
 
         btnLevels = new ImageButton(game.skin, "levels");
-        onChange(btnLevels, ()-> game.setScreen(new LevelsScreen(game)));
+        onChange(btnLevels, () -> game.setScreen(new LevelsScreen(game)));
+        //
+
+        winBtnHome = new ImageButton(game.skin, "home");
+        onChange(winBtnHome, ()-> game.setScreen(game.title_screen));
+
+        winBtnLevels = new ImageButton(game.skin, "levels");
+        onChange(winBtnLevels, ()-> game.setScreen(new LevelsScreen(game)));
 
         btnLeaderboard = new ImageButton(game.skin, "leaderboard");
         onChange(btnLeaderboard, ()-> game.setScreen(new LeaderBoardScreen(game, level)));
@@ -161,8 +165,8 @@ public class GameScreen implements Screen { //TODO add restart and home button
 
         winScore.add(tblWinLbl).grow().colspan(3).row();
 
-        winScore.add(btnHome).height(120f).growX();
-        winScore.add(btnLevels).height(120f).growX();
+        winScore.add(winBtnHome).height(120f).growX();
+        winScore.add(winBtnLevels).height(120f).growX();
         winScore.add(btnLeaderboard).height(120f).growX().row();
         winScore.add(btnPublishScore).height(120f).colspan(3).growX();
 
@@ -170,16 +174,30 @@ public class GameScreen implements Screen { //TODO add restart and home button
 
         ///
 
+        tblScore = new Table();
+        tblScore.defaults().height(150f).uniform().growX();
+
+        tblScore.add(lblMoves);// moves lbl
+        tblScore.add(lblPushes);
+        tblScore.add(lblTimer);
+
+        //
+
+        tblButtons = new Table();
+        tblButtons.defaults().width(175f).height(175f).right();
+        tblButtons.add(btnHome);
+        tblButtons.add(btnLevels);
+        tblButtons.add(btnUndo).spaceLeft(20f);
+
+
         root = new Table();
         root.setFillParent(true);
         //
-        root.defaults().expand().bottom().right();
+        root.defaults().expandY();
         //
 
-        root.add(lblMoves);// moves lbl
-        root.add(lblPushes);
-        root.add(lblTimer).width(400f);
-        root.add(btnUndo).width(200f).height(200f);// undo btn
+        root.add(tblScore).top().growX().row();
+        root.add(tblButtons).bottom().right();
 
 
         winRoot = new Table();

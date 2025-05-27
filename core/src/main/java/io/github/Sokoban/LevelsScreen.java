@@ -25,11 +25,12 @@ public class LevelsScreen implements Screen {
     Stage stage;
 
 
-    Table tblList;
+
+    Table tblList, tblBack;
     Table root;
     ScrollPane srlPane;
     TextButton btnLevel;
-    ImageButton btnLeaderBoard;
+    ImageButton btnLeaderBoard, btnBack;
 
     public LevelsScreen(Sokoban aGame){//TODO rework ui, add leaderboard button for each level
         game = aGame;
@@ -89,7 +90,16 @@ public class LevelsScreen implements Screen {
             public void cancelled() {}
         });
 
+        btnBack = new ImageButton(game.skin, "back");
+        onChange(btnBack, ()->game.setScreen(game.title_screen));
+
+        tblBack = new Table();
+        tblBack.setFillParent(true);
+
+        tblBack.add(btnBack).bottom().left().expand();
+
         stage.addActor(root);
+        stage.addActor(tblBack);
     }
 
     public static void onChange(Actor actor, Runnable runnable){
@@ -112,7 +122,9 @@ public class LevelsScreen implements Screen {
         stage.draw();
     }
     @Override
-    public void resize(int width, int height) {}
+    public void resize(int width, int height) {
+        stage.getViewport().update(width, height, true);
+    }
     @Override
     public void pause() {}
     @Override

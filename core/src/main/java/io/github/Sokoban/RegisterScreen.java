@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.net.HttpRequestBuilder;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
@@ -25,10 +26,11 @@ public class RegisterScreen implements Screen {
     Sokoban game;
     Stage stage;
 
-    Table root;
+    Table root, tblBack;
 
     TextField tfdName, tfdEmail, tfdPassword;
     TextButton btnRegister, btnLogin;
+    ImageButton btnBack;
 
     public RegisterScreen(Sokoban aGame){
         viewport = new ScreenViewport();
@@ -71,7 +73,17 @@ public class RegisterScreen implements Screen {
         root.add(btnLogin).spaceTop(40f);
 
         //stage.setDebugAll(true); //click 1:1 to see lines better
+
+        btnBack = new ImageButton(game.skin, "back");
+        onChange(btnBack, ()->game.setScreen(game.title_screen));
+
+        tblBack = new Table();
+        tblBack.setFillParent(true);
+
+        tblBack.add(btnBack).bottom().left().expand();
+
         stage.addActor(root);
+        stage.addActor(tblBack);
     }
 
     public static void onChange(Actor actor, Runnable runnable){
