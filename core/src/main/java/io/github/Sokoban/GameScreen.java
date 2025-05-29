@@ -579,13 +579,13 @@ public class GameScreen implements Screen { //TODO add restart and home button
         Gdx.net.sendHttpRequest(httpRequest, new Net.HttpResponseListener() {
             @Override
             public void handleHttpResponse(Net.HttpResponse httpResponse){
+                Gdx.app.postRunnable(()->{
+                    String result = httpResponse.getResultAsString().trim(); //fix final \n
 
-                String result = httpResponse.getResultAsString().trim(); //fix final \n
+                    //Gdx.app.log("Error", httpResponse.getStatus().getStatusCode()+" "+result);
 
-                //Gdx.app.log("Error", httpResponse.getStatus().getStatusCode()+" "+result);
-
-                btnPublishScore.setText(result);
-
+                    btnPublishScore.setText(result);
+                });
             }
 
             @Override

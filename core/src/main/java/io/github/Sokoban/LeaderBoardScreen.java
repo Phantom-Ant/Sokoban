@@ -92,41 +92,39 @@ public class LeaderBoardScreen implements Screen {
         Gdx.net.sendHttpRequest(httpRequest, new Net.HttpResponseListener() {
             @Override
             public void handleHttpResponse(Net.HttpResponse httpResponse) {
+                Gdx.app.postRunnable(()->{
+                    Json json = new Json();
+                    String jsonStr = httpResponse.getResultAsString();
+                    Gdx.app.log("test", jsonStr);
+                    JsonReader reader = new JsonReader();
+                    JsonValue map = reader.parse(jsonStr);
+
+                    JsonValue entry=map.child;
 
 
+                    while(entry != null){
+                        Score score = json.readValue(Score.class, entry);
 
-                Json json = new Json();
-                String jsonStr = httpResponse.getResultAsString();
-                Gdx.app.log("test", jsonStr);
-                JsonReader reader = new JsonReader();
-                JsonValue map = reader.parse(jsonStr);
+                        //Gdx.app.log("test", score.user);
 
-                JsonValue entry=map.child;
+                        lblUser = new Label(score.user, game.skin, "table");
+                        lblMoves = new Label(""+score.moves, game.skin, "table");
+                        lblPushes = new Label(""+score.pushes, game.skin, "table");
+                        lblTime = new Label(""+score.time_spent, game.skin, "table");
 
+                        lblUser.setAlignment(Align.center);
+                        lblMoves.setAlignment(Align.center);
+                        lblPushes.setAlignment(Align.center);
+                        lblTime.setAlignment(Align.center);
 
-                while(entry != null){
-                    Score score = json.readValue(Score.class, entry);
+                        tblList.add(lblUser);
+                        tblList.add(lblMoves);
+                        tblList.add(lblPushes);
+                        tblList.add(lblTime).row();
 
-                    //Gdx.app.log("test", score.user);
-
-                    lblUser = new Label(score.user, game.skin, "table");
-                    lblMoves = new Label(""+score.moves, game.skin, "table");
-                    lblPushes = new Label(""+score.pushes, game.skin, "table");
-                    lblTime = new Label(""+score.time_spent, game.skin, "table");
-
-                    lblUser.setAlignment(Align.center);
-                    lblMoves.setAlignment(Align.center);
-                    lblPushes.setAlignment(Align.center);
-                    lblTime.setAlignment(Align.center);
-
-                    tblList.add(lblUser);
-                    tblList.add(lblMoves);
-                    tblList.add(lblPushes);
-                    tblList.add(lblTime).row();
-
-                    entry = entry.next;
-                }
-
+                        entry = entry.next;
+                    }
+                });
             }
             @Override
             public void failed(Throwable t) {

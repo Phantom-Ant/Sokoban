@@ -134,22 +134,23 @@ public class LoginScreen implements Screen {
         Gdx.net.sendHttpRequest(httpRequest, new Net.HttpResponseListener() {
             @Override
             public void handleHttpResponse(Net.HttpResponse httpResponse){
+                Gdx.app.postRunnable(()->{
+                    String result = httpResponse.getResultAsString().trim(); //fix final \n
 
-                String result = httpResponse.getResultAsString().trim(); //fix final \n
+                    //Gdx.app.log("Error", result);
 
-                //Gdx.app.log("Error", result);
+                    if(result.equals("Login successful")){
+                        game.user = user;
+                        Preferences account = Gdx.app.getPreferences("Account");
+                        account.putString("username", user.username);
+                        account.putString("email", user.email);
+                        account.putString("password", user.password);
+                        account.flush();
+                    }
+                    game.setScreen(game.title_screen);
 
-                if(result.equals("Login successful")){
-                    game.user = user;
-                    Preferences account = Gdx.app.getPreferences("Account");
-                    account.putString("username", user.username);
-                    account.putString("email", user.email);
-                    account.putString("password", user.password);
-                    account.flush();
-                }
-                game.setScreen(game.title_screen);
-
-                //TODO print error message on screen when login fails
+                    //TODO print error message on screen when login fails
+                });
             }
 
             @Override

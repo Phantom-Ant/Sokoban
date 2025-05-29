@@ -136,22 +136,23 @@ public class RegisterScreen implements Screen {
         Gdx.net.sendHttpRequest(httpRequest, new Net.HttpResponseListener() {
             @Override
             public void handleHttpResponse(Net.HttpResponse httpResponse){
+                Gdx.app.postRunnable(()->{
+                    String result = httpResponse.getResultAsString().trim(); //fix final \n
 
-                String result = httpResponse.getResultAsString().trim(); //fix final \n
+                    Gdx.app.log("Error", result+httpResponse.getStatus().getStatusCode());
 
-                Gdx.app.log("Error", result+httpResponse.getStatus().getStatusCode());
+                    if(result.equals("Register successful")){
+                        game.user = user;
+                        Preferences account = Gdx.app.getPreferences("Account");
+                        account.putString("username", user.username);
+                        account.putString("email", user.email);
+                        account.putString("password", user.password);
+                        account.flush();
+                    }
+                    game.setScreen(game.title_screen);
 
-                if(result.equals("Register successful")){
-                    game.user = user;
-                    Preferences account = Gdx.app.getPreferences("Account");
-                    account.putString("username", user.username);
-                    account.putString("email", user.email);
-                    account.putString("password", user.password);
-                    account.flush();
-                }
-                game.setScreen(game.title_screen);
-
-                //TODO print error message on screen when register fails
+                    //TODO print error message on screen when register fails
+                });
             }
 
             @Override

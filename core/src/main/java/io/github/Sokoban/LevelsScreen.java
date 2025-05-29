@@ -54,33 +54,47 @@ public class LevelsScreen implements Screen {
         Gdx.net.sendHttpRequest(httpRequest, new Net.HttpResponseListener() {
             @Override
             public void handleHttpResponse(Net.HttpResponse httpResponse) {
+                Gdx.app.postRunnable(()->{
+                    Json json = new Json();
+                    String jsonStr = httpResponse.getResultAsString();
+                    //Gdx.app.log("test", jsonStr);
+                    JsonReader reader = new JsonReader();
+                    JsonValue map = reader.parse(jsonStr);
 
-                Json json = new Json();
-                String jsonStr = httpResponse.getResultAsString();
-                //Gdx.app.log("test", jsonStr);
-                JsonReader reader = new JsonReader();
-                JsonValue map = reader.parse(jsonStr);
+                    JsonValue entry=map.child;
+                    while(entry != null){
+                        Level level = json.readValue(Level.class, entry);
 
-                JsonValue entry=map.child;
-                while(entry != null){
-                    Level level = json.readValue(Level.class, entry);
+                        //Gdx.app.log("test", level.name);
 
-                    //Gdx.app.log("test", level.name);
+                        btnLevel = new TextButton(level.name+"\npublisher: "+level.publisher+"\npublish date: "+ level.publish_date, game.skin, "table");
+                        btnLevel.getLabel().setAlignment(Align.center);
 
-                    btnLevel = new TextButton(level.name+"\npublisher: "+level.publisher+"\npublish date: "+ level.publish_date, game.skin, "table");
-                    btnLevel.getLabel().setAlignment(Align.center);
+                        btnLeaderBoard =new ImageButton(game.skin, "leaderboard-table");
 
-                    btnLeaderBoard =new ImageButton(game.skin, "leaderboard-table");
+                        onChange(btnLevel, () -> game.setScreen(new GameScreen(game, level)) );
+                        onChange(btnLeaderBoard, ()-> game.setScreen(new LeaderBoardScreen(game, level)));
 
-                    onChange(btnLevel, () -> game.setScreen(new GameScreen(game, level)) );
-                    onChange(btnLeaderBoard, ()-> game.setScreen(new LeaderBoardScreen(game, level)));
+                        LevelPreview levelPreview = new LevelPreview(level.data);
 
-                    tblList.add(btnLevel).growX();
-                    tblList.add(btnLeaderBoard).fillY().row();
+                        Table tblItem = new Table();
+                        //TODO FIX
+                        String[] xsbs;
 
-                    entry = entry.next;
-                }
+                        xsbs = level.data.split("\n");
 
+                        int height = xsbs.length;
+                        int width = xsbs[0].length();
+
+                        tblItem.add(levelPreview).colspan(2).growX().height(Gdx.graphics.getWidth()/width*height).row();
+                        tblItem.add(btnLevel).growX();
+                        tblItem.add(btnLeaderBoard).fillY();
+
+                        tblList.add(tblItem).growX().row();
+
+                        entry = entry.next;
+                    }
+                });
             }
             @Override
             public void failed(Throwable t) {
@@ -89,6 +103,8 @@ public class LevelsScreen implements Screen {
             @Override
             public void cancelled() {}
         });
+
+
 
         btnBack = new ImageButton(game.skin, "back");
         onChange(btnBack, ()->game.setScreen(game.title_screen));

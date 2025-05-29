@@ -71,7 +71,8 @@ public class Sokoban extends Game {
         tex_boxPlaced = new Texture("img/boxPlaced.png");
         ///
 
-        backend_url = "http://10.0.2.2/PHP/Sokoban/";
+        //backend_url = "http://10.0.2.2/PHP/Sokoban/";
+        backend_url = "https://44.221.170.148/Sokoban/backend/";
 
         title_screen = new TitleScreen(this);
 
