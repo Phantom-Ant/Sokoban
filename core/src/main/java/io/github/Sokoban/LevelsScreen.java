@@ -79,14 +79,8 @@ public class LevelsScreen implements Screen {
 
                         Table tblItem = new Table();
                         //TODO FIX
-                        String[] xsbs;
 
-                        xsbs = level.data.split("\n");
-
-                        int height = xsbs.length;
-                        int width = xsbs[0].length();
-
-                        tblItem.add(levelPreview).colspan(2).growX().height(Gdx.graphics.getWidth()/width*height).row();
+                        tblItem.add(levelPreview).colspan(2).growX().row();
                         tblItem.add(btnLevel).growX();
                         tblItem.add(btnLeaderBoard).fillY();
 
