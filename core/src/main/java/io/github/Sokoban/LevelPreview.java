@@ -21,7 +21,7 @@ public class LevelPreview extends Table { //TODO FIX
 
     @Override
     public void layout() {
-        super.layout();
+        //super.layout();
 
         // Recalculate preferred height based on actual width
         float actualWidth = getWidth(); // This is the width assigned by layout
@@ -62,27 +62,36 @@ public class LevelPreview extends Table { //TODO FIX
     public float getMaxHeight() {
         return Float.MAX_VALUE;
     }
+
     @Override
     public void draw(Batch batch, float parentAlpha){
-        Gdx.app.log("LevelPreview", "batch transform: " + batch.getTransformMatrix());
-
         Color color = getColor();
         batch.setColor(color.r, color.g, color.b, color.a * parentAlpha);
 
-        // Save the batch transform matrix
-        batch.flush(); // finish previous batch drawing
+        batch.flush();
 
-        // Apply the transform for this actor, including translation, scale, rotation
         applyTransform(batch, computeTransform());
+
+        // Calculate tile size to fit inside actor bounds while preserving aspect ratio
+        float tileSizeX = getWidth() / width;
+        float tileSizeY = getHeight() / height;
+        float tileSize = Math.min(tileSizeX, tileSizeY);
+
+        float totalWidth = tileSize * width;
+        float totalHeight = tileSize * height;
+
+        // Center the level preview inside this actor's bounds
+        float offsetX = (getWidth() - totalWidth) / 2f;
+        float offsetY = (getHeight() - totalHeight) / 2f;
 
         char c;
         Texture tex;
 
-        for(int i=0; i<height; i++){
-            for(int j=0; j<width; j++){
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
                 c = xsbs[i].charAt(j);
 
-                switch(c){
+                switch (c) {
                     case '-':
                         tex = Sokoban.tex_floor;
                         break;
@@ -104,17 +113,16 @@ public class LevelPreview extends Table { //TODO FIX
                         break;
                     default:
                         tex = null;
-                        break;
                 }
 
-                if(tex != null) {
-                    batch.draw(tex, j*getWidth()/width, (height-1-i)*getHeight()/height, getWidth()/width, getHeight()/height);
+                if (tex != null) {
+                    batch.draw(tex, offsetX+j*tileSize, offsetY+(height-1-i)*tileSize, tileSize, tileSize);
                 }
             }
         }
+
         batch.flush();
 
-        // Reset transform so subsequent draw calls are unaffected
         resetTransform(batch);
     }
 }

@@ -58,7 +58,7 @@ public class GameScreen implements Screen { //TODO add restart and home button
     private List<Move> listMoves = new ArrayList<>();
 
     //TEST XSB (Level 1 from Thinking Rabbit)
-    private static String testXSB2 = "____#####__________\n" +
+    private static String testXSB2 ="____#####__________\n" +
                                     "____#---#__________\n" +
                                     "____#$--#__________\n" +
                                     "__###--$##_________\n" +
@@ -93,10 +93,6 @@ public class GameScreen implements Screen { //TODO add restart and home button
         gameViewport = new FitViewport(width, height);
 
         ///ui objects///
-
-        // btn
-        //TODO replace with image button
-        //
 
         //undo btn
         btnUndo = new ImageButton(game.skin, "undo");
@@ -266,6 +262,8 @@ public class GameScreen implements Screen { //TODO add restart and home button
             timer += delta;
             millis = (int) (timer*1000);
 
+
+            //TODO refactor: define elsewhere / use less variables
             long hours = millis / 3600000;
             long minutes = (millis % 3600000) / 60000;
             long seconds = (millis % 60000) / 1000;

@@ -110,7 +110,14 @@ public class LeaderBoardScreen implements Screen {
                         lblUser = new Label(score.user, game.skin, "table");
                         lblMoves = new Label(""+score.moves, game.skin, "table");
                         lblPushes = new Label(""+score.pushes, game.skin, "table");
-                        lblTime = new Label(""+score.time_spent, game.skin, "table");
+
+                        //TODO refactor: define elsewhere / use less variables
+                        long hours = score.time_spent / 3600000;
+                        long minutes = (score.time_spent % 3600000) / 60000;
+                        long seconds = (score.time_spent % 60000) / 1000;
+
+                        String strTime = String.format("%02d:%02d:%02d.%03d", hours, minutes, seconds, score.time_spent%1000);
+                        lblTime = new Label(strTime, game.skin, "table");
 
                         lblUser.setAlignment(Align.center);
                         lblMoves.setAlignment(Align.center);
